@@ -2,7 +2,7 @@
 
 ## 🍭 预览地址
 
-[oreo-editor](https://vue-material-admin-alpha.vercel.app/#/editor/oreo-editor)
+https://vue-material-admin-alpha.vercel.app/#/editor/oreo-editor
 
 ## 👊 TODO
 
