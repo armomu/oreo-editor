@@ -1,5 +1,5 @@
 {
-  "name": "material-ul",
+  "name": "oreo-editor",
   "version": "2.3.0",
   "private": true,
   "scripts": {
@@ -15,6 +15,7 @@
     "lodash": "^4.17.21",
     "pixi.js": "^7.3.2",
     "vue": "^3.2.45",
+    "vue-json-viewer": "^3.0.4",
     "vue-router": "^4.1.6",
     "vuetify": "^3.6.7"
   },

@@ -13,6 +13,12 @@
                 @keydown.enter="onEnter"
                 autofocus="true"
             ></textarea>
+            <img
+                v-if="props.data.url"
+                :src="props.data.url"
+                :width="props.data.styles.width"
+                :height="props.data.styles.height"
+            />
         </div>
         <DragResizeBle
             v-else
@@ -30,7 +36,7 @@
             @dragging="onDragging"
             @resizing="onChanging"
             @refLineParams="getRefLineParams"
-            :lockAspectRatio="props.data.type === 2"
+            :lockAspectRatio="lockAspectRatio"
             :style="styles"
             :class="classNames"
             :uid="props.data.id"
@@ -39,6 +45,19 @@
             <div v-if="props.data.label && !props.data.input" class="text">
                 {{ props.data.label }}
             </div>
+            <a-image
+                v-if="props.data.url"
+                :width="props.data.styles.width"
+                :height="props.data.styles.height"
+                :fit="props.data.styles.imgFit"
+                :src="props.data?.url || undefined"
+                style="z-index: -1"
+            />
+            <v-icon
+                v-if="props.data.type === 6"
+                :icon="props.data.icon"
+                :size="props.data.styles.width"
+            />
             <slot></slot>
         </DragResizeBle>
     </template>
@@ -46,6 +65,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { ResizeOffset, VirtualDom } from '../hooks/useOreoApp';
+import { VirtualDomType } from '../hooks/useOreoApp';
 // @ts-ignore
 import DragResizeBle from '@/components/DragResizeble/index.vue';
 
@@ -97,6 +117,10 @@ const isDiv = computed(() => {
 const _disable = computed(() => {
     return !props.data.locked && !props.data.input;
 });
+const lockAspectRatio = computed(() => {
+    const arr = [VirtualDomType.Circle, VirtualDomType.Icon];
+    return arr.includes(props.data.type);
+});
 
 const resize = (e: ResizeOffset) => {
     emit('update:width', e.width);
@@ -130,6 +154,11 @@ const onDragging = (left_: number, top_: number, f: object) => {
     // console.log(f, 'f');
     emit('dragging', f, props.data);
 };
+const onChanging = (left: number, top: number, width: number, height: number) => {
+    // console.log(f, 'f');
+    emit('changing', { left, top, width, height });
+};
+
 const onBlur = () => {
     // console.log(f, 'f');
     emit('blur');
@@ -141,10 +170,6 @@ const onInput = (e: Event) => {
 const onEnter = (e: Event) => {
     // console.log(f, 'f');
     emit('enter', e);
-};
-const onChanging = (left: number, top: number, width: number, height: number) => {
-    // console.log(f, 'f');
-    emit('changing', { left, top, width, height });
 };
 
 const styles = computed(() => {

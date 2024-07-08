@@ -2,6 +2,8 @@ import { ref, computed, type DefineComponent } from 'vue';
 import { useRuler } from './useRuler';
 import { usePointer } from './usePointer';
 import { useMouseMenu } from './useMouseMenu';
+import materialIcons from './icon';
+import { cloneDeep } from 'lodash';
 
 export enum VirtualDomType {
     Group,
@@ -10,6 +12,7 @@ export enum VirtualDomType {
     Text,
     Image,
     Video,
+    Icon,
 }
 export const beaseDomStyle: ElementStyles = {
     width: 200,
@@ -87,6 +90,18 @@ export const beaseDom: VirtualDom[] = [
             decoration: 'none',
         },
     },
+    {
+        id: 4,
+        name: 'Image',
+        groupId: 0,
+        icon: 'mdi-image-outline',
+        type: VirtualDomType.Image, // 1矩形，2圆形，3文本，4图片，5视频
+        active: true,
+        visible: true,
+        selected: false,
+        locked: false,
+        styles: { ...beaseDomStyle, imgFit: 'contain' },
+    },
 ];
 export const virtualGroup: VirtualDom = {
     id: 0,
@@ -143,8 +158,13 @@ const OreoApp = () => {
         dragingDom.id = _id_ + 0;
         curDom.value = dragingDom;
         appDom.value.push(curDom.value);
+        if (curDom.value.type === VirtualDomType.Image) {
+            console.log(imageFileRef.value);
+            imageFileRef.value.click();
+        }
     };
 
+    // 点击页面图层
     const onVirtualDom = (val: VirtualDom) => {
         curDom.value = val;
     };
@@ -182,6 +202,53 @@ const OreoApp = () => {
         }
     };
 
+    const imageFileRef = ref<any>();
+    const onAddImage = (event: Event) => {
+        // @ts-ignore
+        const file = event.target?.files[0];
+        if (!file) return;
+        const _URL = window.URL || window.webkitURL;
+        const image = new Image();
+        curDom.value.url = _URL.createObjectURL(file);
+        image.src = curDom.value.url;
+        image.onload = () => {
+            curDom.value.styles.fill = false;
+            curDom.value.styles.width = 216;
+            curDom.value.styles.height = (image.height / image.width) * 216;
+        };
+    };
+
+    const onLayerTreeNode = (item: VirtualDom) => {
+        for (let i = 0; i < appDom.value.length; i++) {
+            appDom.value[i].selected = item.id === appDom.value[i].id;
+        }
+    };
+
+    const jsonViewerVisible = ref(false);
+
+    const iconState = ref({
+        dialogVisible: false,
+        list: materialIcons,
+    });
+
+    const onAddIcon = (icon: string) => {
+        const iconDom = cloneDeep(beaseDom[0]);
+        _id_++;
+        iconDom.type = VirtualDomType.Icon;
+        iconDom.id = _id_ + 0;
+        iconDom.name = 'Icon';
+        iconDom.icon = icon;
+        iconDom.styles.fill = false;
+        iconDom.styles.width = 30;
+        iconDom.styles.height = 30;
+        iconDom.styles.left = 30;
+        iconDom.styles.top = 30;
+        curDom.value = iconDom;
+        appDom.value.push(iconDom);
+
+        iconState.value.dialogVisible = false;
+    };
+
     return {
         appDom,
         widgets,
@@ -196,6 +263,12 @@ const OreoApp = () => {
         onEnter,
         onResizeChange,
         disableDraResize,
+        imageFileRef,
+        onAddImage,
+        onLayerTreeNode,
+        jsonViewerVisible,
+        iconState,
+        onAddIcon,
         ...pointerEvent,
         ...rulerBar,
         ...mouseMenu,
@@ -210,7 +283,7 @@ export interface VirtualDom {
     name: string;
     icon: string; // 统一用Vuetify mdi-xxxx这套
     label?: string; // 展示文本 或者title用
-    type: 0 | 1 | 2 | 3 | 4 | 5; // 0组合，1矩形，2圆形，3文本，4图片，5视频
+    type: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0组合，1矩形，2圆形，3文本，4图片，5视频
     url?: string; // 图片或者资源链接
     active: boolean; // 进行拖变大小状态
     selected: boolean; // 选中状态
@@ -234,6 +307,7 @@ export interface ElementStyles extends Shadow {
     radius: number;
 
     fill: boolean;
+    imgFit?: string;
     background: string;
 
     border: boolean;

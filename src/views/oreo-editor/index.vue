@@ -8,12 +8,18 @@
                     :show-expand-icon="false"
                     expand-icon-position="right"
                 >
-                    <a-collapse-item header="Layers" key="1"> </a-collapse-item>
                     <a-collapse-item header="Pages" key="2"> </a-collapse-item>
+                    <a-collapse-item header="Layers" key="1">
+                        <LayerTree :data="oreoApp.appDom.value" @select="oreoApp.onLayerTreeNode" />
+                    </a-collapse-item>
                 </a-collapse>
 
                 <v-card class="tools pa-1 rounded-xl">
-                    <BasicWidget :data="oreoApp.widgets.value" @draging="oreoApp.onDraging" />
+                    <BasicWidget
+                        :data="oreoApp.widgets.value"
+                        @draging="oreoApp.onDraging"
+                        @addimg="oreoApp.onAddImage"
+                    />
                 </v-card>
             </v-sheet>
             <div
@@ -106,6 +112,14 @@
                     :style="oreoApp.boxSelectState.value"
                 ></div>
             </div>
+            <!-- 添加图片 -->
+            <input
+                :ref="oreoApp.imageFileRef"
+                hidden
+                accept="image/*"
+                type="file"
+                @change="oreoApp.onAddImage"
+            />
             <v-card class="helper pa-1 rounded-xl">
                 <v-btn
                     variant="text"
@@ -131,26 +145,81 @@
                 />
                 <v-btn
                     variant="text"
+                    icon="mdi-emoticon-outline"
+                    size="x-small"
+                    @click="
+                        () => {
+                            oreoApp.iconState.value.dialogVisible = true;
+                        }
+                    "
+                />
+                <v-btn
+                    variant="text"
                     icon="mdi-hand-back-left-outline"
                     size="x-small"
                     :color="oreoApp.mouseMode.value.hand ? 'primary' : undefined"
                     @click="oreoApp.onMouseMode('hand')"
                 />
+                <v-btn
+                    variant="text"
+                    icon="mdi-code-json"
+                    size="x-small"
+                    @click="
+                        () => {
+                            oreoApp.jsonViewerVisible.value = true;
+                        }
+                    "
+                />
                 <v-btn variant="text" icon="mdi-reply" size="x-small" />
                 <v-btn variant="text" icon="mdi-share" size="x-small" />
+                <v-btn variant="text" icon="mdi-check-bold" size="x-small" />
             </v-card>
             <v-sheet class="customizes_wrap" @contextmenu.prevent="() => {}">
                 <Customize :data="oreoApp.curDom.value" :align="alignFun" />
             </v-sheet>
         </div>
+        <a-drawer
+            v-model:visible="oreoApp.jsonViewerVisible.value"
+            placement="bottom"
+            hide-cancel
+            height="70vh"
+        >
+            <template #title> Json Viewer </template>
+            <JsonViewer
+                v-if="oreoApp.jsonViewerVisible"
+                :value="oreoApp.appDom"
+                :expand-depth="5"
+                copyable
+            ></JsonViewer>
+        </a-drawer>
+        <a-drawer
+            v-model:visible="oreoApp.iconState.value.dialogVisible"
+            placement="bottom"
+            height="70vh"
+            :footer="false"
+            hide-cancel
+        >
+            <template #title> Material design icons </template>
+            <div class="icon-wrap">
+                <v-icon
+                    v-for="item in oreoApp.iconState.value.list"
+                    :key="item"
+                    :icon="item"
+                    @click="oreoApp.onAddIcon(item)"
+                />
+            </div>
+        </a-drawer>
     </div>
 </template>
 <script lang="ts" setup>
 import './css.scss';
 import { reactive } from 'vue';
+import { useMainStore } from '@/stores/useMainStore';
+// @ts-ignore
+import JsonViewer from 'vue-json-viewer';
 import BasicWidget from './widgets/BasicWidget.vue';
 import Customize from './widgets/Customize.vue';
-// import Layout from './widgets/Layout.vue';
+import LayerTree from './widgets/LayerTree.vue';
 import Resizeble from './widgets/Resizeble.vue';
 import MouseMenu from './widgets/MouseMenu.vue';
 import useOreoApp from './hooks/useOreoApp';
@@ -180,4 +249,6 @@ interface SnapLine {
     origin: string;
     position: string;
 }
+const mainStore = useMainStore();
+mainStore.onTheme('light');
 </script>
