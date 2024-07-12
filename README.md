@@ -36,6 +36,12 @@
 
 https://vue-material-admin-alpha.vercel.app/#/editor/oreo-editor
 
+<p align="center">
+  <img width="100%" src="https://github.com/armomu/oreo-editor/raw/main/public/ezgif-3-1a4a159dbb.gif">
+  <img width="49%" src="https://github.com/armomu/oreo-editor/raw/main/public/ezgif-4-ca909a87d3.gif">
+  <img width="49%" src="https://github.com/armomu/oreo-editor/raw/main/public/ezgif-5-3ad042379d.gif">
+</p>
+
 
 ## 📑 本地开发
 
