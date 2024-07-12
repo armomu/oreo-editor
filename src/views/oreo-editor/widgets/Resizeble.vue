@@ -7,17 +7,24 @@
             <textarea
                 v-if="props.data.input"
                 class="textarea"
-                v-model="props.data.label"
+                v-model="_label"
                 @blur="onBlur"
                 @input="onInput"
                 @keydown.enter="onEnter"
                 autofocus="true"
             ></textarea>
-            <img
+            <a-image
                 v-if="props.data.url"
-                :src="props.data.url"
                 :width="props.data.styles.width"
                 :height="props.data.styles.height"
+                :fit="props.data.styles.imgFit"
+                :src="props.data?.url || undefined"
+                style="z-index: -1"
+            />
+            <v-icon
+                v-if="props.data.type === 6"
+                :icon="props.data.icon"
+                :size="props.data.styles.width"
             />
         </div>
         <DragResizeBle
@@ -27,14 +34,14 @@
             :h="_height"
             :x="_left"
             :y="_top"
-            :draggable="_disable"
-            :resizable="_disable"
+            :draggable="disableDrag"
+            :resizable="disableResize"
             @activated="onActivated"
             @deactivated="onDeactivated"
-            @resizestop="resize"
-            @dragstop="resize"
+            @resizestop="funStop"
+            @dragstop="funStop"
             @dragging="onDragging"
-            @resizing="onChanging"
+            @resizing="onResizing"
             @refLineParams="getRefLineParams"
             :lockAspectRatio="lockAspectRatio"
             :style="styles"
@@ -78,6 +85,7 @@ const props = withDefaults(
         top: number;
         left: number;
         disable?: boolean | null;
+        label?: string;
     }>(),
     {
         disable: false,
@@ -89,8 +97,9 @@ const emit = defineEmits([
     'update:height',
     'update:top',
     'update:left',
+    'update:label',
     'change',
-    'changing',
+    'resizing',
     'snapLine',
     'mouser',
     'dragging',
@@ -105,24 +114,47 @@ const _width = computed(() => props.width);
 const _height = computed(() => props.height);
 const _top = computed(() => props.top || 0);
 const _left = computed(() => props.left || 0);
+const _label = computed({
+    get() {
+        return props.label || '';
+    },
+    set(val: string) {
+        emit('update:label', val);
+    },
+});
 
 const isDiv = computed(() => {
+    // 禁用宽高调整
     if (props.disable) {
         return true;
     }
+    // 如果是文字输入也是div形式
     if (props.data.input) return true;
+
+    // !!props.data.type 不是组合
+    // !!props.data.type 是组合
+    // return !!props.data.groupId && !props.data.type;
+    if (props.data.groupId) return true;
+    if (props.data.virtualGroup) return false;
     return !!props.data.groupId && !!props.data.type;
 });
 
-const _disable = computed(() => {
+const disableDrag = computed(() => {
+    if (props.data.groupId) return true;
     return !props.data.locked && !props.data.input;
 });
+const disableResize = computed(() => {
+    if (props.data.type === VirtualDomType.Group || props.data.virtualGroup) return true;
+    if (props.data.groupId) return true;
+    return !props.data.locked && !props.data.input;
+});
+
 const lockAspectRatio = computed(() => {
     const arr = [VirtualDomType.Circle, VirtualDomType.Icon];
     return arr.includes(props.data.type);
 });
 
-const resize = (e: ResizeOffset) => {
+const funStop = (e: ResizeOffset) => {
     emit('update:width', e.width);
     emit('update:height', e.height);
     emit('update:top', e.top);
@@ -151,24 +183,21 @@ const onDeactivated = () => {
     emit('update:active', false);
 };
 const onDragging = (left_: number, top_: number, f: object) => {
-    // console.log(f, 'f');
     emit('dragging', f, props.data);
 };
-const onChanging = (left: number, top: number, width: number, height: number) => {
-    // console.log(f, 'f');
-    emit('changing', { left, top, width, height });
+const onResizing = (left: number, top: number, width: number, height: number) => {
+    emit('update:width', width);
+    emit('update:height', height);
+    emit('resizing', { left, top, width, height });
 };
 
 const onBlur = () => {
-    // console.log(f, 'f');
     emit('blur');
 };
 const onInput = (e: Event) => {
-    // console.log(f, 'f');
     emit('input', e);
 };
 const onEnter = (e: Event) => {
-    // console.log(f, 'f');
     emit('enter', e);
 };
 
@@ -202,6 +231,7 @@ const styles = computed(() => {
             ...props.data.fontStyle,
         };
         fontStyle.fontSize = props.data.fontStyle.fontSize + 'px';
+        fontStyle.lineHeight = props.data.fontStyle.lineHeight + 'px';
         if (props.data.fontStyle.shadow) {
             fontStyle.textShadow = `${props.data.fontStyle.shadowX}px ${props.data.fontStyle.shadowY}px ${props.data.fontStyle.shadowBlur}px ${props.data.fontStyle.shadowColor}`;
         }
@@ -234,6 +264,7 @@ const classNames = computed(() => {
     ];
 });
 
+// 右键
 const onMouser = (e: PointerEvent) => {
     emit('mouser', e);
 };

@@ -3,7 +3,7 @@ import { virtualGroup, beaseDom, VirtualDomType } from './useOreoApp';
 import type { VirtualDom } from './useOreoApp';
 import { cloneDeep } from 'lodash';
 
-export const usePointer = (appDom: Ref<VirtualDom[]>, _id_: number, curDom: Ref<VirtualDom>) => {
+export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) => {
     const mouseMode = ref({
         boxSelect: true,
         draRact: false,
@@ -234,6 +234,7 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, _id_: number, curDom: Ref<
                 haSelectedList.push(appDom.value[i]);
             }
         }
+        let _id_ = 0;
         if (haSelectedList.length > 0) _id_ = new Date().getTime(); // 增加虚拟组合的ID
         // 选中多个对象后 把它们放入一个虚拟组合里
         if (haSelectedList.length > 1) {
@@ -287,6 +288,29 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, _id_: number, curDom: Ref<
         }
     };
 
+    // 修复群组对齐的时候
+    const fixDragOffset = () => {
+        if (haSelectedList.length > 0) {
+            const minTop = Math.min(...haSelectedList.map((vd) => vd.styles.top));
+            const minLeft = Math.min(...haSelectedList.map((vd) => vd.styles.left));
+            const tres = curDom.value.styles.top - minTop;
+            const mres = curDom.value.styles.left - minLeft;
+            console.log(tres, mres, 'offset');
+            // for (let i = 0; i < haSelectedList.length; i++) {
+            //     if (tres > 0) {
+            //         haSelectedList[i].styles.left = haSelectedList[i].styles.left + mres;
+            //     } else {
+            //         haSelectedList[i].styles.left = haSelectedList[i].styles.left - mres;
+            //     }
+            //     if (mres > 0) {
+            //         haSelectedList[i].styles.top = haSelectedList[i].styles.top + tres;
+            //     } else {
+            //         haSelectedList[i].styles.top = haSelectedList[i].styles.top - tres;
+            //     }
+            // }
+        }
+    };
+
     const onMouseMode = (name: string) => {
         Object.keys(mouseMode.value).forEach((key) => {
             if (name === key) {
@@ -316,7 +340,7 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, _id_: number, curDom: Ref<
     }
 
     function onKeydown(event: KeyboardEvent) {
-        if (event.code === 'Space') {
+        if (event.code === 'Space' && mouseMode.value.boxSelect) {
             event.preventDefault();
             if (!mouseMode.value.hand) {
                 onMouseMode('hand');
@@ -324,7 +348,7 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, _id_: number, curDom: Ref<
         }
     }
     function onKeyup(event: KeyboardEvent) {
-        if (event.code === 'Space') {
+        if (event.code === 'Space' && mouseMode.value.hand) {
             onMouseMode('boxSelect');
         }
     }
@@ -341,14 +365,41 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, _id_: number, curDom: Ref<
     return {
         mouseMode,
         boxSelectState,
+        haSelectedList,
         onPointerDown,
         onPointerMove,
         onPointerUp,
         onVirtualGroupDragging,
+        fixDragOffset,
         onMouseMode,
     };
 };
 
+export interface OreoPointerEvent {
+    mouseMode: Ref<MouseMode>;
+    boxSelectState: Ref<BoxSelectState>;
+    haSelectedList: VirtualDom[];
+    onPointerDown: (e: PointerEvent) => void;
+    onPointerMove: (e: PointerEvent) => void;
+    onPointerUp: () => void;
+    onVirtualGroupDragging: (f: DragOffset) => void;
+    fixDragOffset: () => void;
+    onMouseMode: (name: string) => void;
+}
+
+interface MouseMode {
+    boxSelect: boolean;
+    draRact: boolean;
+    text: boolean;
+    hand: boolean;
+}
+interface BoxSelectState {
+    visible: boolean;
+    width: string;
+    height: string;
+    top: string;
+    left: string;
+}
 interface DragOffset {
     offsetX: number;
     offsetY: number;
