@@ -6,6 +6,7 @@ import { useMouseMenu } from './useMouseMenu';
 import { useIcon } from './useIcon';
 import { useTextInput } from './useTextInput';
 import { useSnapLine } from './useSnapLine';
+import testJson from './test.json';
 
 export enum VirtualDomType {
     Group,
@@ -232,7 +233,8 @@ const OreoApp = () => {
     };
 
     const jsonViewerVisible = ref(false);
-
+    // test
+    appDom.value = testJson._rawValue as any;
     return {
         appDom,
         widgets,
