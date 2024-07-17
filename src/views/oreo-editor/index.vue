@@ -60,41 +60,14 @@
                         @snapLine="oreoApp.onSnapLine"
                         @mouser="oreoApp.openMenu"
                         @activated="oreoApp.onVirtualDom"
-                        @dragging="oreoApp.onVirtualGroupDragging"
+                        @dragging="oreoApp.onVirtualDomDragging"
                         @blur="oreoApp.onBlur"
                         @input="oreoApp.onInput"
                         @enter="oreoApp.onEnter"
                         @resizing="oreoApp.onResize"
                     >
-                        <!-- @snapLine="onSnapLine"
-                        @contextmenu.prevent.native="openMenu" -->
-                        <!-- <component :is="chartKeys[item.widget]" /> -->
                     </Resizeble>
-                    <!--辅助线-->
-                    <div>
-                        <span
-                            class="ref-line v-line"
-                            v-for="item in oreoApp.snapLine.vLine"
-                            :key="item.id"
-                            v-show="item.display"
-                            :style="{
-                                left: item.position,
-                                top: item.origin,
-                                height: item.lineLength,
-                            }"
-                        />
-                        <span
-                            class="ref-line h-line"
-                            v-for="item in oreoApp.snapLine.hLine"
-                            :key="item.id"
-                            v-show="item.display"
-                            :style="{
-                                top: item.position,
-                                left: item.origin,
-                                width: item.lineLength,
-                            }"
-                        />
-                    </div>
+                    <SnapLine :data="oreoApp.snapLine" />
                     <MouseMenu
                         :data="oreoApp.appDom.value"
                         :visible="oreoApp.menuState.value.visible"
@@ -102,7 +75,6 @@
                         :left="oreoApp.menuState.value.left"
                         :actions="oreoApp.meneActions"
                     />
-                    <ChartArea />
                 </div>
                 <div
                     v-if="oreoApp.boxSelectState.value.visible"
@@ -145,11 +117,7 @@
                     variant="text"
                     icon="mdi-emoticon-outline"
                     size="x-small"
-                    @click="
-                        () => {
-                            oreoApp.iconState.value.dialogVisible = true;
-                        }
-                    "
+                    @click="oreoApp.onShowIconDialog"
                 />
                 <v-btn
                     variant="text"
@@ -173,7 +141,11 @@
                 <v-btn variant="text" icon="mdi-check-bold" size="x-small" />
             </div>
             <div class="customizes_wrap" @contextmenu.prevent="() => {}">
-                <Customize :data="oreoApp.curDom.value" :align="oreoApp.align" />
+                <Customize
+                    :data="oreoApp.curDom.value"
+                    :align="oreoApp.align"
+                    @add-widget="oreoApp.onShowChartDialog"
+                />
             </div>
         </div>
         <a-drawer
@@ -207,6 +179,16 @@
                 />
             </div>
         </a-drawer>
+        <a-drawer
+            v-model:visible="oreoApp.chartState.value.dialogVisible"
+            placement="bottom"
+            height="70vh"
+            :footer="false"
+            hide-cancel
+            title="Components"
+        >
+            <a-button @click="oreoApp.onAddChart">Apex Area Chart</a-button>
+        </a-drawer>
     </div>
 </template>
 <script lang="ts" setup>
@@ -216,6 +198,7 @@ import Customize from './widgets/Customize.vue';
 import LayerTree from './widgets/LayerTree.vue';
 import Resizeble from './widgets/Resizeble.vue';
 import MouseMenu from './widgets/MouseMenu.vue';
+import SnapLine from './widgets/SnapLine.vue';
 // @ts-ignore
 import JsonViewer from 'vue-json-viewer';
 

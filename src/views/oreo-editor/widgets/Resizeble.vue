@@ -26,6 +26,7 @@
                 :icon="props.data.icon"
                 :size="props.data.styles.width"
             />
+            <component v-if="props.data.component" :is="props.data.component" />
         </div>
         <DragResizeBle
             v-else
@@ -49,7 +50,7 @@
             :uid="props.data.id"
             @contextmenu.prevent="onMouser"
         >
-            <div v-if="props.data.label && !props.data.input" class="text">
+            <div v-if="props.data.label && !props.data.input" class="text dr_text">
                 {{ props.data.label }}
             </div>
             <a-image
@@ -65,6 +66,7 @@
                 :icon="props.data.icon"
                 :size="props.data.styles.width"
             />
+            <component v-if="props.data.component" :is="props.data.component" />
             <slot></slot>
         </DragResizeBle>
     </template>
@@ -98,7 +100,7 @@ const emit = defineEmits([
     'update:top',
     'update:left',
     'update:label',
-    'change',
+    'stop',
     'resizing',
     'snapLine',
     'mouser',
@@ -159,7 +161,7 @@ const funStop = (e: ResizeOffset) => {
     emit('update:height', e.height);
     emit('update:top', e.top);
     emit('update:left', e.left);
-    emit('change', e);
+    emit('stop', e);
 };
 
 const getRefLineParams = (params: any) => {
@@ -183,6 +185,8 @@ const onDeactivated = () => {
     emit('update:active', false);
 };
 const onDragging = (left_: number, top_: number, f: object) => {
+    emit('update:top', top_);
+    emit('update:left', left_);
     emit('dragging', f, props.data);
 };
 const onResizing = (left: number, top: number, width: number, height: number) => {
@@ -267,6 +271,6 @@ const classNames = computed(() => {
 
 // 右键
 const onMouser = (e: PointerEvent) => {
-    emit('mouser', e);
+    emit('mouser', e, props.data);
 };
 </script>

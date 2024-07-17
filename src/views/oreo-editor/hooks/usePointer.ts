@@ -64,7 +64,6 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) =
                     }, 250);
                 }
                 if (pointerDownCount === 2) {
-                    console.log('==========+++2');
                     pointerDownCount = 0;
                     pointerDownTimer && clearTimeout(pointerDownTimer);
                     curDom.value.input = true;
@@ -72,7 +71,7 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) =
             }
 
             // 当点击的对象是拖拽框
-            if (className.includes('draggable')) {
+            if (className.includes('draggable') || className.includes('dr_text')) {
                 mouseState.draggableActive = true;
                 // 找出当前ID所有子对象 包括组合子组合中的对象
                 haSelectedList = findUids(e_t_did);
@@ -82,17 +81,7 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) =
             if (className.includes('contextmenu_item')) {
                 return;
             }
-            const vg = appDom.value.find((item) => item.virtualGroup);
-            // 取消选中
-            for (let i = 0; i < appDom.value.length; i++) {
-                appDom.value[i].selected = false;
-                if (vg && appDom.value[i].groupId === vg.id) {
-                    appDom.value[i].groupId = 0;
-                }
-            }
-            // 删除虚拟组合
-            vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
-
+            delVirtualgroup();
             // 设置键菜单位置信息
             if (className.includes('work_content') || className.includes('work-area')) {
                 mouseState.down = true;
@@ -102,8 +91,6 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) =
         }
         // 画矩形
         if (mouseMode.value.draRact) {
-            // curDom.value.locked = true;
-
             const newDom = cloneDeep(beaseDom[0]);
             newDom.visible = false;
             newDom.active = false;
@@ -280,47 +267,48 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) =
         boxSelectState.value.left = '';
     };
 
-    //
-    const onVirtualGroupDragging = (f: DragOffset) => {
-        for (let i = 0; i < haSelectedList.length; i++) {
-            haSelectedList[i].styles.left = haSelectedList[i].styles.left + f.offsetX;
-            haSelectedList[i].styles.top = haSelectedList[i].styles.top + f.offsetY;
-        }
-    };
-
-    // 修复群组对齐的时候
-    const fixDragOffset = () => {
+    const onVirtualDomDragging = () => {
         if (haSelectedList.length > 0) {
             const minTop = Math.min(...haSelectedList.map((vd) => vd.styles.top));
             const minLeft = Math.min(...haSelectedList.map((vd) => vd.styles.left));
-            const tres = curDom.value.styles.top - minTop;
-            const mres = curDom.value.styles.left - minLeft;
-            console.log(tres, mres, 'offset');
-            // for (let i = 0; i < haSelectedList.length; i++) {
-            //     if (tres > 0) {
-            //         haSelectedList[i].styles.left = haSelectedList[i].styles.left + mres;
-            //     } else {
-            //         haSelectedList[i].styles.left = haSelectedList[i].styles.left - mres;
-            //     }
-            //     if (mres > 0) {
-            //         haSelectedList[i].styles.top = haSelectedList[i].styles.top + tres;
-            //     } else {
-            //         haSelectedList[i].styles.top = haSelectedList[i].styles.top - tres;
-            //     }
-            // }
+            const offsetX = curDom.value.styles.left - minLeft;
+            const offsetY = curDom.value.styles.top - minTop;
+            for (let i = 0; i < haSelectedList.length; i++) {
+                // 群组移动会有一个巨大
+                haSelectedList[i].styles.left = haSelectedList[i].styles.left + offsetX;
+                haSelectedList[i].styles.top = haSelectedList[i].styles.top + offsetY;
+            }
         }
     };
 
-    const onMouseMode = (name: string) => {
-        Object.keys(mouseMode.value).forEach((key) => {
-            if (name === key) {
-                // @ts-ignore
-                mouseMode.value[key] = true;
-            } else {
-                // @ts-ignore
-                mouseMode.value[key] = false;
+    const delVirtualgroup = () => {
+        const vg = appDom.value.find((item) => item.virtualGroup);
+        // 取消选中
+        for (let i = 0; i < appDom.value.length; i++) {
+            appDom.value[i].selected = false;
+            // appDom.value[i].active = curActive;
+            if (vg && appDom.value[i].groupId === vg.id) {
+                appDom.value[i].groupId = 0;
             }
+        }
+        // 删除虚拟组合
+        vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
+    };
+
+    const onMouseMode = (name: string) => {
+        // delVirtualgroup();
+        Object.keys(mouseMode.value).forEach((key) => {
+            // @ts-ignore
+            mouseMode.value[key] = name === key;
+            // if (name === key) {
+            //     // @ts-ignore
+            //     mouseMode.value[key] = true;
+            // } else {
+            //     // @ts-ignore
+            //     mouseMode.value[key] = false;
+            // }
         });
+
         console.log(name, '模式=======', curDom.value.input);
     };
 
@@ -346,13 +334,53 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) =
                 onMouseMode('hand');
             }
         }
+        if (
+            event.code === 'ArrowLeft' ||
+            event.code === 'ArrowRight' ||
+            event.code === 'ArrowUp' ||
+            event.code === 'ArrowDown'
+        ) {
+            event.preventDefault();
+            for (let i = 0; i < haSelectedList.length; i++) {
+                switch (event.code) {
+                    case 'ArrowLeft':
+                        haSelectedList[i].styles.left--;
+                        break;
+                    case 'ArrowRight':
+                        haSelectedList[i].styles.left++;
+                        break;
+                    case 'ArrowUp':
+                        haSelectedList[i].styles.top--;
+                        break;
+                    case 'ArrowDown':
+                        haSelectedList[i].styles.top++;
+                        break;
+                }
+            }
+            switch (event.code) {
+                case 'ArrowLeft':
+                    curDom.value.styles.left--;
+                    break;
+                case 'ArrowRight':
+                    curDom.value.styles.left++;
+                    break;
+                case 'ArrowUp':
+                    curDom.value.styles.top--;
+                    break;
+                case 'ArrowDown':
+                    curDom.value.styles.top++;
+                    break;
+            }
+        }
     }
     function onKeyup(event: KeyboardEvent) {
         if (event.code === 'Space' && mouseMode.value.hand) {
             onMouseMode('boxSelect');
         }
     }
-
+    function setSelectedList() {
+        haSelectedList = [];
+    }
     onMounted(() => {
         document.addEventListener('keydown', onKeydown);
         document.addEventListener('keyup', onKeyup);
@@ -369,9 +397,10 @@ export const usePointer = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) =
         onPointerDown,
         onPointerMove,
         onPointerUp,
-        onVirtualGroupDragging,
-        fixDragOffset,
+        onVirtualDomDragging,
         onMouseMode,
+        setSelectedList,
+        delVirtualgroup,
     };
 };
 
@@ -382,9 +411,10 @@ export interface OreoPointerEvent {
     onPointerDown: (e: PointerEvent) => void;
     onPointerMove: (e: PointerEvent) => void;
     onPointerUp: () => void;
-    onVirtualGroupDragging: (f: DragOffset) => void;
-    fixDragOffset: () => void;
+    onVirtualDomDragging: (f: DragOffset) => void;
     onMouseMode: (name: string) => void;
+    setSelectedList: () => void;
+    delVirtualgroup: () => void;
 }
 
 interface MouseMode {

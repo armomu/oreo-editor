@@ -1,4 +1,4 @@
-import { ref, computed, type DefineComponent } from 'vue';
+import { ref, computed, type VNode, type RendererNode, type RendererElement } from 'vue';
 import { useRuler } from './useRuler';
 import { useAlign } from './useAlign';
 import { usePointer } from './usePointer';
@@ -6,6 +6,8 @@ import { useMouseMenu } from './useMouseMenu';
 import { useIcon } from './useIcon';
 import { useTextInput } from './useTextInput';
 import { useSnapLine } from './useSnapLine';
+import { useAddChart } from './useAddChart';
+
 import testJson from './test.json';
 
 export enum VirtualDomType {
@@ -153,16 +155,17 @@ const OreoApp = () => {
         _id_++;
         e.preventDefault();
         if (!dragingDom) return;
-        const vg = appDom.value.find((item) => item.virtualGroup);
-        for (let i = 0; i < appDom.value.length; i++) {
-            appDom.value[i].selected = false;
-            appDom.value[i].active = false;
-            if (vg && appDom.value[i].groupId === vg.id) {
-                appDom.value[i].groupId = 0;
-            }
-        }
-        // 删除虚拟组合
-        vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
+        pointerEvent.delVirtualgroup();
+        // const vg = appDom.value.find((item) => item.virtualGroup);
+        // for (let i = 0; i < appDom.value.length; i++) {
+        //     appDom.value[i].selected = false;
+        //     appDom.value[i].active = false;
+        //     if (vg && appDom.value[i].groupId === vg.id) {
+        //         appDom.value[i].groupId = 0;
+        //     }
+        // }
+        // // 删除虚拟组合
+        // vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
         const { width, height } = dragingDom.styles;
 
         dragingDom.styles.top = e.offsetY - height / 2;
@@ -178,7 +181,7 @@ const OreoApp = () => {
 
     // 点击页面图层
     const onVirtualDom = (val: VirtualDom) => {
-        console.log(val.name, val.id, '点击了');
+        console.log(curDom.value, '点击了');
         curDom.value = val;
     };
 
@@ -191,13 +194,18 @@ const OreoApp = () => {
     const pointerEvent = usePointer(appDom, curDom);
     const rulerBar = useRuler();
     const mouseMenu = useMouseMenu(appDom, curDom);
-    const iconEvent = useIcon(appDom, curDom);
+    const iconEvent = useIcon(appDom, curDom, pointerEvent);
     const inputEvent = useTextInput(appDom, curDom, pointerEvent);
     const align = useAlign(appDom);
-    const snapLineEvent = useSnapLine(appDom, curDom, pointerEvent);
+    const snapLineEvent = useSnapLine();
+    const chartEvent = useAddChart(appDom, curDom);
+
     //
     const disableDraResize = computed(() => {
         if (pointerEvent.mouseMode.value.text) {
+            return true;
+        }
+        if (pointerEvent.mouseMode.value.draRact) {
             return true;
         }
         return false;
@@ -258,6 +266,7 @@ const OreoApp = () => {
         ...mouseMenu,
         ...iconEvent,
         ...inputEvent,
+        ...chartEvent,
     };
 };
 export default OreoApp;
@@ -278,7 +287,13 @@ export interface VirtualDom {
     input?: boolean; // 文本特有的编辑文本中状态
     styles: ElementStyles;
     fontStyle?: FontStyle;
-    component?: DefineComponent; // 内组件
+    component?: () => VNode<
+        RendererNode,
+        RendererElement,
+        {
+            [key: string]: any;
+        }
+    >; // 内组件
 }
 
 // 基础框框
