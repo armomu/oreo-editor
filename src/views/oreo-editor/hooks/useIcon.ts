@@ -2,21 +2,16 @@ import { ref, type Ref } from 'vue';
 
 import materialIcons from './icon';
 import { cloneDeep } from 'lodash';
-import { VirtualDomType, beaseDom, type VirtualDom } from './useOreoApp';
-import type { OreoPointerEvent } from './usePointer';
+import { VirtualDomType, beaseDom, type VirtualDom } from './enumTypes';
+import type { OreoPointerEvent } from './enumTypes';
 
-export const useIcon = (
-    appDom: Ref<VirtualDom[]>,
-    curDom: Ref<VirtualDom>,
-    pointerEvent: OreoPointerEvent
-) => {
+export const useIcon = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) => {
     const iconState = ref({
         dialogVisible: false,
         list: materialIcons,
     });
 
     const onShowIconDialog = () => {
-        pointerEvent.setSelectedList();
         const vg = appDom.value.find((item) => item.virtualGroup);
         // 取消选中
         for (let i = 0; i < appDom.value.length; i++) {
@@ -62,6 +57,7 @@ export const useIcon = (
 
         iconState.value.dialogVisible = false;
     };
+
     return {
         iconState,
         onShowIconDialog,

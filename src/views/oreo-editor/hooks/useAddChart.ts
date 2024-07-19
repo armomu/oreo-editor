@@ -1,6 +1,6 @@
 import { h, ref, type Ref } from 'vue';
 import ChartArea from '../widgets/charts/ChartArea.vue';
-import { type VirtualDom } from './useOreoApp';
+import { type VirtualDom } from './enumTypes';
 
 export const useAddChart = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) => {
     const chartState = ref({
@@ -22,6 +22,7 @@ export const useAddChart = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) 
         curDom.value.component = () => h(ChartArea, { ...option });
         chartState.value.dialogVisible = false;
     };
+
     return {
         chartState,
         onShowChartDialog,

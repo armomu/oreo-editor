@@ -73,8 +73,8 @@
 </template>
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { ResizeOffset, VirtualDom } from '../hooks/useOreoApp';
-import { VirtualDomType } from '../hooks/useOreoApp';
+import type { ResizeOffset, VirtualDom } from '../hooks/enumTypes';
+import { VirtualDomType } from '../hooks/enumTypes';
 // @ts-ignore
 import DragResizeBle from '@/components/DragResizeble/index.vue';
 

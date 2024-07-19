@@ -48,8 +48,8 @@
 import { computed, h } from 'vue';
 import { IconDriveFile, IconDown, IconImage, IconFontColors } from '@arco-design/web-vue/es/icon';
 import { VIcon } from 'vuetify/components';
-import { VirtualDomType } from '../hooks/useOreoApp';
-import type { VirtualDom } from '../hooks/useOreoApp';
+import { VirtualDomType } from '../hooks/enumTypes';
+import type { VirtualDom } from '../hooks/enumTypes';
 
 const props = withDefaults(
     defineProps<{

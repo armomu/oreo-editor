@@ -12,7 +12,7 @@
     </v-btn>
 </template>
 <script lang="ts" setup>
-import type { VirtualDom } from '../hooks/useOreoApp';
+import type { VirtualDom } from '../hooks/enumTypes';
 import { cloneDeep } from 'lodash';
 
 const emit = defineEmits(['draging', 'addimg']);

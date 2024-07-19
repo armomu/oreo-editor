@@ -352,6 +352,7 @@
             <!-- 图片样式开始 -->
             <a-collapse-item v-if="showImage" header="Image" key="4">
                 <a-image
+                    :preview="false"
                     :width="216"
                     :height="imageHeight"
                     :fit="props.data.styles.imgFit"
@@ -376,8 +377,8 @@
 </template>
 <script lang="ts" setup>
 import { computed } from 'vue';
-import type { VirtualDom } from '../hooks/useOreoApp';
-import { VirtualDomType } from '../hooks/useOreoApp';
+import type { VirtualDom } from '../hooks/enumTypes';
+import { VirtualDomType } from '../hooks/enumTypes';
 import type { AlignFun } from '../hooks/useAlign';
 
 const props = withDefaults(

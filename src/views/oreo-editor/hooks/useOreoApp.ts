@@ -1,131 +1,27 @@
-import { ref, computed, type VNode, type RendererNode, type RendererElement } from 'vue';
-import { useAlign } from './useAlign';
-import { usePointer } from './usePointer';
-import { useMouseMenu } from './useMouseMenu';
-import { useIcon } from './useIcon';
-import { useTextInput } from './useTextInput';
-import { useSnapLine } from './useSnapLine';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { VirtualDomType, beaseDom, virtualGroup } from './enumTypes';
+import type { VirtualDom, ResizeOffset } from './enumTypes';
+
 import { useAddChart } from './useAddChart';
+import { useAlign } from './useAlign';
+import { useDragWidget } from './useDragWidget';
+import { useIcon } from './useIcon';
 import { useImage } from './useImage';
-
+import { useMouseMenu } from './useMouseMenu';
+import { useRect } from './useRect';
+import { useRuler } from './useRuler';
+import { useSnapLine } from './useSnapLine';
+import { useTextInput } from './useTextInput';
+import { useUndoRedo } from './useUndoRedo';
+// 测试导出的数据
 import testJson from './test.json';
+import { cloneDeep } from 'lodash';
 
-export enum VirtualDomType {
-    Group,
-    Rect,
-    Circle,
-    Text,
-    Image,
-    Video,
-    Icon,
-}
-export const beaseDomStyle: ElementStyles = {
-    width: 200,
-    height: 90,
-    left: 0,
-    top: 0,
-    opacity: 1,
-    rotate: 0,
-    radius: 0,
-
-    fill: true,
-    background: '#efefef',
-
-    border: false,
-    borderWidth: '1',
-    borderStyle: 'solid',
-    borderColor: '#999',
-
-    shadow: false,
-    shadowX: 0,
-    shadowY: 4,
-    shadowBlur: 8,
-    shadowSpread: 0,
-    shadowColor: 'rgba(0, 0, 0, 0.2)',
-};
-export const beaseDom: VirtualDom[] = [
-    {
-        id: 1,
-        name: 'Rect',
-        groupId: 0,
-        icon: 'mdi-card-outline',
-        type: VirtualDomType.Rect,
-        active: true,
-        visible: true,
-        selected: false,
-        locked: false,
-        styles: { ...beaseDomStyle },
-    },
-    {
-        id: 2,
-        name: 'Circle',
-        groupId: 0,
-        icon: 'mdi-circle-outline',
-        type: VirtualDomType.Circle,
-        active: true,
-        visible: true,
-        selected: false,
-        locked: false,
-        styles: { ...beaseDomStyle, width: 90, radius: 45 },
-    },
-    {
-        id: 3,
-        name: 'Text',
-        groupId: 0,
-        icon: 'mdi-format-color-text',
-        label: 'This is an open source backend management system. Oreo editor can provide basic drag-and-drop editing pages.', // 展示文本 或者title用
-        active: true,
-        visible: true,
-        selected: false,
-        locked: false,
-        type: VirtualDomType.Text,
-        styles: { ...beaseDomStyle, fill: false },
-        fontStyle: {
-            color: '#333333',
-            fontSize: 12,
-            lineHeight: 15,
-            fontFamily: 'alishuhei',
-            fontWeight: 'normal',
-            textAlign: 'left',
-            shadow: false,
-            shadowX: 0,
-            shadowY: 1,
-            shadowBlur: 2,
-            shadowSpread: 0,
-            shadowColor: 'rgba(0, 0, 0, 1)',
-            decoration: 'none',
-        },
-    },
-    {
-        id: 4,
-        name: 'Image',
-        groupId: 0,
-        icon: 'mdi-image-outline',
-        type: VirtualDomType.Image,
-        active: true,
-        visible: true,
-        selected: false,
-        locked: false,
-        styles: { ...beaseDomStyle, imgFit: 'contain' },
-    },
-];
-export const virtualGroup: VirtualDom = {
-    id: 0,
-    name: 'virtualGroup',
-    groupId: 0,
-    virtualGroup: true, // 虚拟组 如果是虚拟组
-    icon: 'mdi-group', // 统一用Vuetify mdi-xxxx这套
-    type: 0, // 组合
-    active: true,
-    visible: true,
-    selected: false,
-    locked: false,
-    styles: { ...beaseDomStyle, fill: false },
-};
 const OreoApp = () => {
+    // 所有图层
     const appDom = ref<VirtualDom[]>([]);
     const widgets = ref<VirtualDom[]>([...beaseDom]);
-    // 当前选中的节点
+    // 当前选中的图层
     const curDom = ref<VirtualDom>({
         ...beaseDom[0],
     });
@@ -139,83 +35,296 @@ const OreoApp = () => {
             _scale.value = val / 100;
         },
     });
-    // 当前拖动中的节点
-    let dragingDom: VirtualDom;
-    const onDraging = (e: VirtualDom) => {
-        dragingDom = e;
+    // 是否禁用所有可操作的图层
+    const disableDraResize = computed(() => {
+        if (pointerEvent.mouseMode.text) {
+            return true;
+        }
+        if (pointerEvent.mouseMode.draRact) {
+            return true;
+        }
+        return false;
+    });
+    // 当前是处于在做什么的状态
+    const mouseMode = reactive({
+        boxSelect: true, // 自由框选或者选择对象
+        draRact: false, // 画矩形
+        text: false, // 添加文本
+        image: false, // 添加图像
+        hand: false, // 移动视图
+    });
+    // let haSelectedList: VirtualDom[] = [];
+    // 当前框选内所有的图层
+    const selectedList = ref<VirtualDom[]>([]);
+    // 框选框视图状态
+    const selectBoxState = reactive({
+        visible: false,
+        width: '',
+        height: '',
+        top: '',
+        left: '',
+    });
+    // 记录鼠标移动数据
+    const mouseState = reactive({
+        draggableActive: false, // 可操作图层
+        down: false,
+        startX: 0,
+        startY: 0,
+        layerX: 0,
+        layerY: 0,
+        endX: 0,
+        endY: 0,
+        offsetX: 0,
+        offsetY: 0,
+    });
+
+    // 是否正在添加新的对象中
+    const adding = ref(false);
+
+    const onPointerDown = (e: PointerEvent) => {
+        mouseState.startX = e.clientX + 0;
+        mouseState.startY = e.clientY + 0;
+        mouseState.layerX = e.layerX + 0;
+        mouseState.layerY = e.layerY + 0;
+        // @ts-ignore
+        const className = e.target?.className || '';
+        // @ts-ignore 当前图层ID
+        const e_t_did = parseInt(e.target?.getAttribute('uid') + '');
+        console.log(className, 'onPointerDown');
+        if (mouseMode.hand) {
+            e.preventDefault();
+            rulerBarEvent.onHandStart(mouseState.startX, mouseState.startY);
+        }
+        if (mouseMode.boxSelect) {
+            textInputEvent.draggableTextClick(className, e_t_did);
+            // 当点击的对象是拖拽框
+            if (className.includes('draggable') || className.includes('dr_text')) {
+                console.log('当前点击是拖拽框');
+                mouseState.draggableActive = true;
+                // 找出当前ID所有子对象 包括组合子组合中的对象
+                selectedList.value = findUids(e_t_did);
+                return;
+            }
+            // 点击的对象是右键菜单项目不做操作
+            if (className.includes('contextmenu_item')) {
+                console.log('当前点击是菜单子项目');
+                return;
+            }
+            cancelActived();
+            // 设置键菜单位置信息
+            if (className.includes('work_content') || className.includes('work-area')) {
+                mouseState.down = true;
+                selectBoxState.left = e.clientX + 'px';
+                selectBoxState.top = e.clientY + 'px';
+            }
+        }
+        textInputEvent.textWorkEventDown(mouseMode.text, className, e);
+        rectEvent.rectWorkEventDown(mouseMode.draRact, adding, e);
     };
 
-    const onDragover = (e: DragEvent) => {
-        e.preventDefault();
-    };
+    const onPointerMove = (e: PointerEvent) => {
+        mouseState.endX = e.clientX;
+        mouseState.endY = e.clientY;
+        if (mouseState.draggableActive) {
+            if (e.clientX < mouseState.startX) {
+                mouseState.offsetX = -mouseState.startX - e.clientX;
+            } else {
+                mouseState.offsetX = e.clientX - mouseState.startX;
+            }
+            if (e.clientY < mouseState.startY) {
+                mouseState.offsetY = -mouseState.startY - e.clientY;
+            } else {
+                mouseState.offsetY = e.clientY - mouseState.startY;
+            }
+        }
 
-    // 各种群组ID索引
-    let _id_ = 0;
-    const onDrop = (e: DragEvent) => {
-        _id_++;
-        e.preventDefault();
-        if (!dragingDom) return;
-        pointerEvent.delVirtualgroup();
-        const { width, height } = dragingDom.styles;
-
-        dragingDom.styles.top = e.offsetY - height / 2;
-        dragingDom.styles.left = e.offsetX - width / 2;
-        dragingDom.id = _id_ + 0;
-        curDom.value = dragingDom;
-        appDom.value.push(curDom.value);
-        if (curDom.value.type === VirtualDomType.Image) {
-            imageFileRef.value.click();
+        // 画框选框
+        if (mouseState.down && mouseMode.boxSelect) {
+            selectBoxState.visible = true;
+            selectBoxState.width = Math.abs(e.clientX - mouseState.startX) + 'px';
+            selectBoxState.height = Math.abs(e.clientY - mouseState.startY) + 'px';
+            if (e.clientX < mouseState.startX) {
+                selectBoxState.left = e.clientX + 'px';
+            }
+            if (e.clientY < mouseState.startY) {
+                selectBoxState.top = e.clientY + 'px';
+            }
+        }
+        // 画矩形
+        if (mouseMode.draRact && adding) {
+            rectEvent.rectWorkEventMove(e, mouseState.layerX, mouseState.layerY);
+        }
+        if (mouseMode.image) {
+            curDom.value.styles.left = e.layerX + 0;
+            curDom.value.styles.top = e.layerY + 0;
+        }
+        if (mouseMode.hand) {
+            rulerBarEvent.onHandMove(e);
         }
     };
 
-    // 点击页面图层
-    const onVirtualDom = (val: VirtualDom) => {
-        console.log(curDom.value, '点击了');
-        curDom.value = val;
+    const onPointerUp = () => {
+        mouseState.down = false;
+        selectBoxState.visible = false;
+        mouseState.draggableActive = false;
+        if (mouseMode.hand) {
+            rulerBarEvent.onHandEnd();
+        }
+        if (!curDom.value.input) {
+            onMouseMode('boxSelect');
+        }
+        adding.value = false;
+        checkSelectBox();
+    };
+    // 查询有没有对象被选中
+    // 如果有选中图层会包含在selectedList数组中
+    const checkSelectBox = () => {
+        if (!mouseMode.boxSelect) return;
+        if (!selectBoxState.width || parseFloat(selectBoxState.width) < 5) {
+            // console.log('没有进入 ========= 查询有没有对象被选中');
+            return;
+        }
+        // 获取所有对象集合
+        const doms = document.getElementsByClassName('vdr');
+        const left = parseFloat(selectBoxState.left);
+        const top = parseFloat(selectBoxState.top);
+        const width = parseFloat(selectBoxState.width);
+        const height = parseFloat(selectBoxState.height);
+
+        // 所有包含在框选内的图层、组合的ID，不包含虚拟组合
+        const uids: number[] = [];
+        for (let i = 0; i < doms.length; i++) {
+            const rect = doms[i].getBoundingClientRect();
+            const isContained =
+                left <= rect.left &&
+                left + width >= rect.right &&
+                top <= rect.top &&
+                top + height >= rect.bottom;
+            if (isContained) {
+                uids.push(parseFloat(doms[i].getAttribute('uid') + ''));
+            }
+        }
+        // 获得框选组合
+        selectedList.value = [];
+        for (let i = 0; i < appDom.value.length; i++) {
+            // 需要去除包含在组内到的对象 只得到没有 组合的图层和组合框 组合框对象不包含
+            if (uids.includes(appDom.value[i].id) && !appDom.value[i].groupId) {
+                appDom.value[i].selected = true;
+                selectedList.value.push(appDom.value[i]);
+            }
+        }
+        let _id_ = 0;
+        if (selectedList.value.length > 0) _id_ = new Date().getTime(); // 增加虚拟组合的ID
+        // 选中多个对象后 把它们放入一个虚拟组合里
+        if (selectedList.value.length > 1) {
+            let minTop = Infinity;
+            let minLeft = Infinity;
+            let maxBottom = -Infinity;
+            let maxRight = -Infinity;
+            const topList: number[] = [];
+            const leftList: number[] = [];
+            for (let i = 0; i < selectedList.value.length; i++) {
+                selectedList.value[i].groupId = _id_;
+                const { width, height, top, left } = selectedList.value[i].styles;
+                topList.push(top);
+                leftList.push(left);
+                if (top < minTop) {
+                    minTop = top;
+                }
+                if (left < minLeft) {
+                    minLeft = left;
+                }
+                const bottom = top + height;
+                const right = left + width;
+                if (bottom > maxBottom) {
+                    maxBottom = bottom;
+                }
+                if (right > maxRight) {
+                    maxRight = right;
+                }
+            }
+            const obj = cloneDeep(virtualGroup);
+            obj.id = _id_;
+            obj.styles.width = maxRight - minLeft;
+            obj.styles.height = maxBottom - minTop;
+            obj.styles.top = Math.min(...topList);
+            obj.styles.left = Math.min(...leftList);
+            curDom.value = obj;
+            appDom.value.push(curDom.value);
+        }
+        // 取消框选的状态
+        selectBoxState.height = '';
+        selectBoxState.width = '';
+        selectBoxState.top = '';
+        selectBoxState.left = '';
     };
 
+    const onDomDragging = () => {
+        if (selectedList.value.length > 0) {
+            const minTop = Math.min(...selectedList.value.map((vd) => vd.styles.top));
+            const minLeft = Math.min(...selectedList.value.map((vd) => vd.styles.left));
+            const offsetX = curDom.value.styles.left - minLeft;
+            const offsetY = curDom.value.styles.top - minTop;
+            for (let i = 0; i < selectedList.value.length; i++) {
+                // 群组移动会有一个巨大
+                selectedList.value[i].styles.left = selectedList.value[i].styles.left + offsetX;
+                selectedList.value[i].styles.top = selectedList.value[i].styles.top + offsetY;
+            }
+        }
+    };
+
+    // 取消所有选择的图层
+    const cancelSelect = () => {
+        for (let i = 0; i < appDom.value.length; i++) {
+            appDom.value[i].selected = false;
+        }
+        console.log('取消了选择======');
+    };
+    // 所有选择、选中、虚拟组合的图层
+    const cancelActived = () => {
+        const vg = appDom.value.find((item) => item.virtualGroup);
+        // 取消选中
+        for (let i = 0; i < appDom.value.length; i++) {
+            appDom.value[i].selected = false;
+            appDom.value[i].active = false;
+            if (vg && appDom.value[i].groupId === vg.id) {
+                appDom.value[i].groupId = 0;
+            }
+        }
+        // 删除虚拟组合
+        vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
+    };
+    // 删除虚拟组合
+    const deleteVirtualGroup = () => {
+        const vg = appDom.value.find((item) => item.virtualGroup);
+        for (let i = 0; i < appDom.value.length; i++) {
+            if (vg && appDom.value[i].groupId === vg.id) {
+                appDom.value[i].groupId = 0;
+            }
+        }
+        // 删除虚拟组合
+        vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
+        console.log('删除了虚拟组======');
+    };
+
+    // 设置当前鼠标正在做什么工作
+    const onMouseMode = (name: string) => {
+        Object.keys(mouseMode).forEach((key) => {
+            // @ts-ignore
+            mouseMode[key] = name === key;
+        });
+    };
+
+    // 点击了可操作的图层
+    const onVirtualDom = (val: VirtualDom) => {
+        curDom.value = val;
+    };
+    // 删除图层
     const onDelVirtualDom = (id: number) => {
         const index = appDom.value.findIndex((item) => item.id === id);
         if (index < 0) return;
         appDom.value.splice(index, 1);
     };
-
-    const imageFileRef = ref<any>();
-    const onDragImage = (event: Event) => {
-        // @ts-ignore
-        const file = event.target?.files[0];
-        if (!file) return;
-        const _URL = window.URL || window.webkitURL;
-        const image = new Image();
-        curDom.value.url = _URL.createObjectURL(file);
-        image.src = curDom.value.url;
-        image.onload = () => {
-            curDom.value.styles.fill = false;
-            curDom.value.styles.width = 216;
-            curDom.value.styles.height = (image.height / image.width) * 216;
-        };
-    };
-
-    // const rulerBarEvent = useRuler();
-    const pointerEvent = usePointer(appDom, curDom);
-    const mouseMenuEvent = useMouseMenu(appDom, curDom);
-    const iconEvent = useIcon(appDom, curDom, pointerEvent);
-    const inputEvent = useTextInput(appDom, curDom, pointerEvent);
-    const align = useAlign(appDom);
-    const snapLineEvent = useSnapLine();
-    const chartEvent = useAddChart(appDom, curDom);
-    const imageEvent = useImage(appDom, curDom, pointerEvent);
-
-    //
-    const disableDraResize = computed(() => {
-        if (pointerEvent.mouseMode.value.text) {
-            return true;
-        }
-        if (pointerEvent.mouseMode.value.draRact) {
-            return true;
-        }
-        return false;
-    });
 
     const onResize = (val: ResizeOffset) => {
         // BUG 为什么解除组合圆形的宽会变大
@@ -230,105 +339,131 @@ const OreoApp = () => {
         }
     };
 
+    function findUids(id: number) {
+        const result: VirtualDom[] = [];
+        function findChildren(items: VirtualDom[], parentId: number) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.groupId === parentId) {
+                    result.push(item);
+                    findChildren(items, item.id);
+                }
+            }
+        }
+        findChildren(appDom.value, id);
+        return result;
+    }
+
+    function onKeydown(event: KeyboardEvent) {
+        if (event.code === 'Space' || event.code === 'Spacebar') {
+            event.preventDefault();
+            if (mouseMode.boxSelect && !mouseMode.hand) {
+                onMouseMode('hand');
+            }
+        }
+        if (
+            event.code === 'ArrowLeft' ||
+            event.code === 'ArrowRight' ||
+            event.code === 'ArrowUp' ||
+            event.code === 'ArrowDown'
+        ) {
+            event.preventDefault();
+            for (let i = 0; i < selectedList.value.length; i++) {
+                switch (event.code) {
+                    case 'ArrowLeft':
+                        selectedList.value[i].styles.left--;
+                        break;
+                    case 'ArrowRight':
+                        selectedList.value[i].styles.left++;
+                        break;
+                    case 'ArrowUp':
+                        selectedList.value[i].styles.top--;
+                        break;
+                    case 'ArrowDown':
+                        selectedList.value[i].styles.top++;
+                        break;
+                }
+            }
+            switch (event.code) {
+                case 'ArrowLeft':
+                    curDom.value.styles.left--;
+                    break;
+                case 'ArrowRight':
+                    curDom.value.styles.left++;
+                    break;
+                case 'ArrowUp':
+                    curDom.value.styles.top--;
+                    break;
+                case 'ArrowDown':
+                    curDom.value.styles.top++;
+                    break;
+            }
+        }
+    }
+    function onKeyup(event: KeyboardEvent) {
+        if (event.code === 'Space' && mouseMode.hand) {
+            onMouseMode('boxSelect');
+        }
+    }
+
+    onMounted(() => {
+        document.addEventListener('keydown', onKeydown);
+        document.addEventListener('keyup', onKeyup);
+    });
+    onUnmounted(() => {
+        document.removeEventListener('keydown', onKeydown);
+        document.removeEventListener('keyup', onKeyup);
+    });
+
     const jsonViewerVisible = ref(false);
     // test
     appDom.value = testJson._rawValue as any;
+
+    const pointerEvent = {
+        mouseMode,
+        selectBoxState,
+        selectedList,
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
+        onDomDragging,
+        onMouseMode,
+        cancelSelect,
+        cancelActived,
+        deleteVirtualGroup,
+    };
+    const rulerBarEvent = useRuler();
+    const dragWidgetEvent = useDragWidget(appDom, curDom, pointerEvent);
+    const mouseMenuEvent = useMouseMenu(appDom, curDom);
+    const iconEvent = useIcon(appDom, curDom);
+    const textInputEvent = useTextInput(appDom, curDom, pointerEvent);
+    const align = useAlign(appDom);
+    const snapLineEvent = useSnapLine();
+    const chartEvent = useAddChart(appDom, curDom);
+    const imageEvent = useImage(appDom, curDom, pointerEvent);
+    const rectEvent = useRect(appDom, curDom);
+
     return {
         appDom,
         widgets,
         curDom,
         scale,
-        onDraging,
-        onDragover,
-        onDrop,
         onVirtualDom,
         onDelVirtualDom,
         onResize,
         disableDraResize,
-        imageFileRef,
-        onDragImage,
         onLayerTreeNode,
         jsonViewerVisible,
-        ...snapLineEvent,
         align,
+        ...snapLineEvent,
         ...pointerEvent,
-        // ...rulerBarEvent,
+        ...dragWidgetEvent,
+        ...rulerBarEvent,
         ...mouseMenuEvent,
         ...iconEvent,
-        ...inputEvent,
+        ...textInputEvent,
         ...chartEvent,
         ...imageEvent,
     };
 };
 export default OreoApp;
-
-export interface VirtualDom {
-    id: number;
-    groupId: number; // 所属组合ID
-    virtualGroup?: boolean; // 虚拟组 如果是虚拟组
-    name: string;
-    icon: string; // 统一用Vuetify mdi-xxxx这套
-    label?: string; // 展示文本 或者title用
-    type: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0组合，1矩形，2圆形，3文本，4图片，5视频
-    url?: string; // 图片或者资源链接
-    active: boolean; // 进行拖变大小状态
-    selected: boolean; // 选中状态
-    locked: boolean; // 锁定状态
-    visible: boolean;
-    input?: boolean; // 文本特有的编辑文本中状态
-    styles: ElementStyles;
-    fontStyle?: FontStyle;
-    component?: () => VNode<
-        RendererNode,
-        RendererElement,
-        {
-            [key: string]: any;
-        }
-    >; // 内组件
-}
-
-// 基础框框
-export interface ElementStyles extends Shadow {
-    // 变换
-    width: number;
-    height: number;
-    left: number;
-    top: number;
-    opacity: number;
-    rotate: number;
-    radius: number;
-
-    fill: boolean;
-    imgFit?: 'fill' | 'none' | 'contain' | 'cover' | 'scale-down' | undefined;
-    background: string;
-
-    border: boolean;
-    borderWidth: string;
-    borderStyle: 'solid' | 'dashed' | 'dotted';
-    borderColor: string;
-}
-
-// 文本
-export interface FontStyle extends Shadow {
-    color: string;
-    fontSize: number;
-    fontFamily: string;
-    fontWeight: 'bold' | 'bolder' | 'normal' | 'lighter' | 'bolder';
-    textAlign: 'center' | 'left' | 'right' | 'justify' | 'start' | 'end';
-    decoration: 'none' | 'overline' | 'line-through' | 'underline';
-    lineHeight: number;
-}
-interface Shadow {
-    shadow: boolean;
-    shadowX: number;
-    shadowY: number;
-    shadowBlur: number;
-    shadowSpread: number; // 文本不可用
-    shadowColor: string;
-}
-export interface ResizeOffset {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-}

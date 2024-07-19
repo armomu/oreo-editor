@@ -1,7 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import type { Ref } from 'vue';
-import { VirtualDomType } from './useOreoApp';
-import type { VirtualDom } from './useOreoApp';
+import { VirtualDomType } from './enumTypes';
+import type { VirtualDom } from './enumTypes';
 export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) => {
     const menuState = ref({
         visible: false,

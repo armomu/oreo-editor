@@ -38,7 +38,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import type { VirtualDom } from '../hooks/useOreoApp';
+import type { VirtualDom } from '../hooks/enumTypes';
 import type { MeneActions } from '../hooks/useMouseMenu';
 import { computed } from 'vue';
 

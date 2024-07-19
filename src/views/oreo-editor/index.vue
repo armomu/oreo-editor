@@ -1,7 +1,7 @@
 <template>
     <div class="editor_wrap">
         <div class="oreo-editor" id="oreoEditor">
-            <div class="layers" id="layers" @contextmenu.prevent="() => {}">
+            <div class="layers-pages" id="layers" @contextmenu.prevent="() => {}">
                 <a-collapse
                     :default-active-key="['1', '2']"
                     :bordered="false"
@@ -35,9 +35,9 @@
                 @pointerup.stop="oreoApp.onPointerUp"
                 @scroll="oreoApp.onWorkAreaScroll"
                 :class="{
-                    cursorText: oreoApp.mouseMode.value.text,
-                    cursorCross: oreoApp.mouseMode.value.draRact,
-                    cursorGrab: oreoApp.mouseMode.value.hand,
+                    cursorText: oreoApp.mouseMode.text,
+                    cursorCross: oreoApp.mouseMode.draRact,
+                    cursorGrab: oreoApp.mouseMode.hand,
                 }"
             >
                 <Grid />
@@ -61,7 +61,7 @@
                         @snapLine="oreoApp.onSnapLine"
                         @mouser="oreoApp.openMenu"
                         @activated="oreoApp.onVirtualDom"
-                        @dragging="oreoApp.onVirtualDomDragging"
+                        @dragging="oreoApp.onDomDragging"
                         @blur="oreoApp.onBlur"
                         @input="oreoApp.onInput"
                         @enter="oreoApp.onEnter"
@@ -78,54 +78,47 @@
                     />
                 </div>
                 <div
-                    v-if="oreoApp.boxSelectState.value.visible"
+                    v-if="oreoApp.selectBoxState.visible"
                     class="boxSelectHelper"
-                    :style="oreoApp.boxSelectState.value"
+                    :style="oreoApp.selectBoxState"
                 ></div>
             </div>
             <!-- 添加图片 -->
-            <input
-                :ref="oreoApp.imageFileRef2"
-                hidden
-                accept="image/*"
-                type="file"
-                @change="oreoApp.onAddImage"
-            />
             <input
                 :ref="oreoApp.imageFileRef"
                 hidden
                 accept="image/*"
                 type="file"
-                @change="oreoApp.onDragImage"
+                @change="oreoApp.onAddImage"
             />
-            <div class="helper">
+            <div class="bottom-tools">
                 <v-btn
                     variant="text"
                     icon="mdi-navigation-outline"
                     size="x-small"
                     style="transform: rotate(-35deg)"
-                    :color="oreoApp.mouseMode.value.boxSelect ? 'primary' : undefined"
+                    :color="oreoApp.mouseMode.boxSelect ? 'primary' : undefined"
                     @click="oreoApp.onMouseMode('boxSelect')"
                 />
                 <v-btn
                     variant="text"
                     icon="mdi-card-outline"
                     size="x-small"
-                    :color="oreoApp.mouseMode.value.draRact ? 'primary' : undefined"
+                    :color="oreoApp.mouseMode.draRact ? 'primary' : undefined"
                     @click="oreoApp.onMouseMode('draRact')"
                 />
                 <v-btn
                     variant="text"
                     icon="mdi-format-color-text"
                     size="x-small"
-                    :color="oreoApp.mouseMode.value.text ? 'primary' : undefined"
-                    @click="oreoApp.onMouseMode('text')"
+                    :color="oreoApp.mouseMode.text ? 'primary' : undefined"
+                    @click="oreoApp.onTextIconClick"
                 />
                 <v-btn
                     variant="text"
                     icon="mdi-image-outline"
                     size="x-small"
-                    :color="oreoApp.mouseMode.value.image ? 'primary' : undefined"
+                    :color="oreoApp.mouseMode.image ? 'primary' : undefined"
                     @click="oreoApp.onFileRefClick"
                 />
                 <v-btn
@@ -138,7 +131,7 @@
                     variant="text"
                     icon="mdi-hand-back-left-outline"
                     size="x-small"
-                    :color="oreoApp.mouseMode.value.hand ? 'primary' : undefined"
+                    :color="oreoApp.mouseMode.hand ? 'primary' : undefined"
                     @click="oreoApp.onMouseMode('hand')"
                 />
                 <v-btn

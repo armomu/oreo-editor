@@ -1,6 +1,7 @@
 import type { Ref } from 'vue';
-import type { VirtualDom } from './useOreoApp';
-import type { OreoPointerEvent } from './usePointer';
+import { beaseDom, VirtualDomType, type VirtualDom } from './enumTypes';
+import type { OreoPointerEvent } from './enumTypes';
+import { cloneDeep } from 'lodash';
 
 export const useTextInput = (
     appDom: Ref<VirtualDom[]>,
@@ -13,13 +14,12 @@ export const useTextInput = (
         console.log(e);
         pointerEvent.onMouseMode('boxSelect');
     };
-    let onEnteState = false;
 
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-
+    let onEnteState = false;
     const onInput = (e: Event) => {
-        if (pointerEvent.mouseMode.value.text && !onEnteState) {
+        if (pointerEvent.mouseMode.text && !onEnteState) {
             // @ts-ignore
             context.font = window.getComputedStyle(e.target).getPropertyValue('font');
             const texts = (curDom.value.label || '').split('\n');
@@ -32,7 +32,7 @@ export const useTextInput = (
             curDom.value.styles.width = maxWidth + curDom.value.fontStyle?.fontSize || 0;
         }
     };
-    const onEnter = (e: Event) => {
+    const onEnter = () => {
         onEnteState = true;
         if (curDom.value.fontStyle) {
             curDom.value.styles.height =
@@ -42,7 +42,68 @@ export const useTextInput = (
         }
     };
 
+    const onTextIconClick = () => {
+        pointerEvent.onMouseMode('text');
+    };
+
+    let pointerDownCount = 0;
+    // @ts-ignore
+    // eslint-disable-next-line no-undef
+    let pointerDownTimer: NodeJS.Timeout | null = null;
+    const draggableTextClick = (className: string, id: number) => {
+        if (
+            className.includes('draggable') &&
+            id === curDom.value.id &&
+            curDom.value.type === VirtualDomType.Text
+        ) {
+            // 判定双击
+            pointerDownCount++;
+            if (pointerDownCount === 1) {
+                pointerDownTimer = setTimeout(() => {
+                    pointerDownCount = 0;
+                }, 250);
+            }
+            if (pointerDownCount === 2) {
+                pointerDownCount = 0;
+                pointerDownTimer && clearTimeout(pointerDownTimer);
+                curDom.value.input = true;
+            }
+        }
+    };
+    const textWorkEventDown = (isText: boolean, className: string, e: PointerEvent) => {
+        if (!isText) return;
+        if (curDom.value.input && className.includes('textarea')) {
+            console.log('正在添加文字中，请继续编辑！');
+            return;
+        }
+        if (curDom.value.input && className.includes('work_content')) {
+            curDom.value.input = false;
+            return;
+        }
+        const newDom = cloneDeep(beaseDom[2]);
+        newDom.active = false;
+        newDom.styles.width = 80;
+        newDom.styles.height = 14;
+        newDom.styles.left = e.layerX + 0;
+        newDom.styles.top = e.layerY + 0;
+
+        newDom.input = true;
+        newDom.label = '双击编辑文字';
+        newDom.id = new Date().getTime();
+        curDom.value = newDom;
+        appDom.value.push(curDom.value);
+        console.log('添加了新的文字对象');
+        console.log(curDom.value);
+    };
+
+    // const textWorkEventDown = (e: PointerEvent) => {}
+    // const textWorkEventMove = (e: PointerEvent) => {}
+    // const textWorkEventUp = () => {}
+
     return {
+        onTextIconClick,
+        draggableTextClick,
+        textWorkEventDown,
         onBlur,
         onInput,
         onEnter,

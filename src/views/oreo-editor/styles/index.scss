@@ -14,14 +14,14 @@
 }
 
 .editor_wrap {
-    height: calc(100vh - 124px);
+    height: 100vh;
     overflow: hidden;
     user-select: none;
     background: #f5f5f6;
 }
 .oreo-editor {
     position: relative;
-    height: calc(100vh - 124px);
+    height: 100vh;
     display: flex;
     // transform: rotate(10deg);
     .arco-collapse-item-content {
@@ -48,10 +48,10 @@
             right: 2px;
         }
     }
-    .layers {
+    .layers-pages {
         flex: 0 0 220px;
         width: 220px;
-        height: calc(100vh - 124px);
+        height: 100vh;
         border-right: 1px solid #efefef;
         position: relative;
         z-index: 2;
@@ -117,7 +117,7 @@
         background: rgba(104, 104, 249, 0.2);
         border: 1px solid rgb(104, 104, 249);
     }
-    .helper {
+    .bottom-tools {
         position: absolute;
         left: 50%;
         bottom: 0;
@@ -137,9 +137,9 @@
         border-right: 1px solid #efefef;
     }
     .work-area {
-        width: calc(100vw - 594px);
+        width: calc(100vw - 466px);
         position: relative;
-        height: calc(100vh - 124px);
+        height: 100vh;
         overflow: auto;
         padding: 20px 20px;
         textarea {
@@ -219,6 +219,9 @@
                 height: 100%;
                 left: 0;
                 top: 0;
+            }
+            .mdi {
+                z-index: -1;
             }
 
         }
@@ -311,8 +314,7 @@
         flex: 0 0 246px;
         width: 246px;
         overflow-y: auto;
-        height: calc(100vh - 124px);
-        border-left: 1px solid #efefef;
+        height: 100vh;
         position: relative;
         z-index: 2;
         background: #ffffff;

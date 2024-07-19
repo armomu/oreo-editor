@@ -1,5 +1,5 @@
 import type { Ref } from 'vue';
-import type { VirtualDom } from './useOreoApp';
+import type { VirtualDom } from './enumTypes';
 
 // Align Hooks
 export const useAlign = (appDom: Ref<VirtualDom[]>) => {

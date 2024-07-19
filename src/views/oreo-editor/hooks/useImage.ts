@@ -1,18 +1,18 @@
 import { ref, type Ref } from 'vue';
 import { cloneDeep } from 'lodash';
-import { VirtualDomType, beaseDom, type VirtualDom } from './useOreoApp';
-import type { OreoPointerEvent } from './usePointer';
+import { VirtualDomType, beaseDom, type VirtualDom } from './enumTypes';
+import type { OreoPointerEvent } from './enumTypes';
 
 export const useImage = (
     appDom: Ref<VirtualDom[]>,
     curDom: Ref<VirtualDom>,
     pointerEvent: OreoPointerEvent
 ) => {
-    const imageFileRef2 = ref<any>();
+    const imageFileRef = ref<any>();
 
     const onFileRefClick = () => {
         pointerEvent.onMouseMode('image');
-        imageFileRef2.value?.click();
+        imageFileRef.value?.click();
     };
 
     const onAddImage = (event: Event) => {
@@ -38,7 +38,7 @@ export const useImage = (
     };
 
     return {
-        imageFileRef2,
+        imageFileRef,
         onFileRefClick,
         onAddImage,
     };

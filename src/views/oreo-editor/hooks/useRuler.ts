@@ -97,7 +97,6 @@ export const useRuler = () => {
         start = true;
         startX = x;
         startY = y;
-
         scrollLeft = workAreaDomRef.value?.scrollLeft || 0;
         scrollTop = workAreaDomRef.value?.scrollTop || 0;
     };
