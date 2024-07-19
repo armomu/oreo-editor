@@ -48,6 +48,7 @@
             :style="styles"
             :class="classNames"
             :uid="props.data.id"
+            :scaleRatio="$props.scale"
             @contextmenu.prevent="onMouser"
         >
             <div v-if="props.data.label && !props.data.input" class="text dr_text">
@@ -88,11 +89,14 @@ const props = withDefaults(
         left: number;
         disable?: boolean | null;
         label?: string;
+        scale?: number;
     }>(),
     {
         disable: false,
+        scale: 1,
     }
 );
+
 const emit = defineEmits([
     'update:active',
     'update:width',
@@ -224,7 +228,7 @@ const styles = computed(() => {
         boxShadow = `${props.data.styles.shadowX} ${props.data.styles.shadowY}px ${props.data.styles.shadowBlur}px ${props.data.styles.shadowSpread}px ${props.data.styles.shadowColor}`;
     }
     let zIndex: any = '';
-    if (props.data.active) {
+    if (props.data.active || props.data.input) {
         zIndex = 1;
     }
 

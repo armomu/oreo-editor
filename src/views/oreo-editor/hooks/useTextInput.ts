@@ -5,10 +5,11 @@ import { cloneDeep } from 'lodash';
 
 export const useTextInput = (
     appDom: Ref<VirtualDom[]>,
-    curDom: Ref<VirtualDom>,
+    curDom: Ref<VirtualDom | undefined>,
     pointerEvent: OreoPointerEvent
 ) => {
     const onBlur = (e: Event) => {
+        if (!curDom.value) return;
         curDom.value.input = false;
         curDom.value.locked = false;
         console.log(e);
@@ -19,7 +20,7 @@ export const useTextInput = (
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
     let onEnteState = false;
     const onInput = (e: Event) => {
-        if (pointerEvent.mouseMode.text && !onEnteState) {
+        if (curDom.value && pointerEvent.mouseMode.text && !onEnteState) {
             // @ts-ignore
             context.font = window.getComputedStyle(e.target).getPropertyValue('font');
             const texts = (curDom.value.label || '').split('\n');
@@ -34,7 +35,7 @@ export const useTextInput = (
     };
     const onEnter = () => {
         onEnteState = true;
-        if (curDom.value.fontStyle) {
+        if (curDom.value && curDom.value.fontStyle) {
             curDom.value.styles.height =
                 curDom.value.styles.height +
                 curDom.value.fontStyle.fontSize +
@@ -52,6 +53,7 @@ export const useTextInput = (
     let pointerDownTimer: NodeJS.Timeout | null = null;
     const draggableTextClick = (className: string, id: number) => {
         if (
+            curDom.value &&
             className.includes('draggable') &&
             id === curDom.value.id &&
             curDom.value.type === VirtualDomType.Text
@@ -72,11 +74,11 @@ export const useTextInput = (
     };
     const textWorkEventDown = (isText: boolean, className: string, e: PointerEvent) => {
         if (!isText) return;
-        if (curDom.value.input && className.includes('textarea')) {
+        if (curDom.value && curDom.value.input && className.includes('textarea')) {
             console.log('正在添加文字中，请继续编辑！');
             return;
         }
-        if (curDom.value.input && className.includes('work_content')) {
+        if (curDom.value && curDom.value.input && className.includes('work_content')) {
             curDom.value.input = false;
             return;
         }

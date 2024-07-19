@@ -22,19 +22,19 @@ const OreoApp = () => {
     const appDom = ref<VirtualDom[]>([]);
     const widgets = ref<VirtualDom[]>([...beaseDom]);
     // 当前选中的图层
-    const curDom = ref<VirtualDom>({
+    const curDom = ref<VirtualDom | undefined>({
         ...beaseDom[0],
     });
     // 当前视图放大的倍数
-    const _scale = ref(1);
-    const scale = computed({
-        get() {
-            return _scale.value * 100;
-        },
-        set(val: number) {
-            _scale.value = val / 100;
-        },
-    });
+    const scale = ref(1);
+    // const scale = computed({
+    //     get() {
+    //         return _scale.value * 100;
+    //     },
+    //     set(val: number) {
+    //         _scale.value = val / 100;
+    //     },
+    // });
     // 是否禁用所有可操作的图层
     const disableDraResize = computed(() => {
         if (pointerEvent.mouseMode.text) {
@@ -110,7 +110,7 @@ const OreoApp = () => {
                 console.log('当前点击是菜单子项目');
                 return;
             }
-            cancelActived();
+            deleteVirtualGroup();
             // 设置键菜单位置信息
             if (className.includes('work_content') || className.includes('work-area')) {
                 mouseState.down = true;
@@ -154,7 +154,7 @@ const OreoApp = () => {
         if (mouseMode.draRact && adding) {
             rectEvent.rectWorkEventMove(e, mouseState.layerX, mouseState.layerY);
         }
-        if (mouseMode.image) {
+        if (mouseMode.image && curDom.value) {
             curDom.value.styles.left = e.layerX + 0;
             curDom.value.styles.top = e.layerY + 0;
         }
@@ -170,12 +170,13 @@ const OreoApp = () => {
         if (mouseMode.hand) {
             rulerBarEvent.onHandEnd();
         }
-        if (!curDom.value.input) {
+        if (curDom.value && !curDom.value.input) {
             onMouseMode('boxSelect');
         }
         adding.value = false;
         checkSelectBox();
     };
+
     // 查询有没有对象被选中
     // 如果有选中图层会包含在selectedList数组中
     const checkSelectBox = () => {
@@ -260,7 +261,7 @@ const OreoApp = () => {
     };
 
     const onDomDragging = () => {
-        if (selectedList.value.length > 0) {
+        if (selectedList.value.length > 0 && curDom.value) {
             const minTop = Math.min(...selectedList.value.map((vd) => vd.styles.top));
             const minLeft = Math.min(...selectedList.value.map((vd) => vd.styles.left));
             const offsetX = curDom.value.styles.left - minLeft;
@@ -280,7 +281,7 @@ const OreoApp = () => {
         }
         console.log('取消了选择======');
     };
-    // 所有选择、选中、虚拟组合的图层
+    // 所有选择、选中、虚拟组合和当前curDom的图层
     const cancelActived = () => {
         const vg = appDom.value.find((item) => item.virtualGroup);
         // 取消选中
@@ -293,6 +294,11 @@ const OreoApp = () => {
         }
         // 删除虚拟组合
         vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
+        // 当前也删掉
+        if (curDom.value) {
+            curDom.value = undefined;
+        }
+        console.log('取消了所有选择、选中、虚拟组合的图层======');
     };
     // 删除虚拟组合
     const deleteVirtualGroup = () => {
@@ -304,6 +310,9 @@ const OreoApp = () => {
         }
         // 删除虚拟组合
         vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
+        if (curDom.value && vg && curDom.value.id === vg.id) {
+            curDom.value = undefined;
+        }
         console.log('删除了虚拟组======');
     };
 
@@ -328,7 +337,7 @@ const OreoApp = () => {
 
     const onResize = (val: ResizeOffset) => {
         // BUG 为什么解除组合圆形的宽会变大
-        if (curDom.value.type === VirtualDomType.Circle) {
+        if (curDom.value && curDom.value.type === VirtualDomType.Circle) {
             curDom.value.styles.radius = parseInt(val.width / 2 + '');
         }
     };
@@ -386,16 +395,16 @@ const OreoApp = () => {
             }
             switch (event.code) {
                 case 'ArrowLeft':
-                    curDom.value.styles.left--;
+                    curDom.value && curDom.value.styles.left--;
                     break;
                 case 'ArrowRight':
-                    curDom.value.styles.left++;
+                    curDom.value && curDom.value.styles.left++;
                     break;
                 case 'ArrowUp':
-                    curDom.value.styles.top--;
+                    curDom.value && curDom.value.styles.top--;
                     break;
                 case 'ArrowDown':
-                    curDom.value.styles.top++;
+                    curDom.value && curDom.value.styles.top++;
                     break;
             }
         }
@@ -441,7 +450,7 @@ const OreoApp = () => {
     const snapLineEvent = useSnapLine();
     const chartEvent = useAddChart(appDom, curDom);
     const imageEvent = useImage(appDom, curDom, pointerEvent);
-    const rectEvent = useRect(appDom, curDom);
+    const rectEvent = useRect(appDom, curDom, pointerEvent);
 
     return {
         appDom,
@@ -464,6 +473,7 @@ const OreoApp = () => {
         ...textInputEvent,
         ...chartEvent,
         ...imageEvent,
+        ...rectEvent,
     };
 };
 export default OreoApp;

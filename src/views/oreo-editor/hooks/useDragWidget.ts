@@ -3,7 +3,7 @@ import { type OreoPointerEvent, type VirtualDom } from './enumTypes';
 
 export const useDragWidget = (
     appDom: Ref<VirtualDom[]>,
-    curDom: Ref<VirtualDom>,
+    curDom: Ref<VirtualDom | undefined>,
     pointerEvent: OreoPointerEvent
 ) => {
     // 当前拖动中的节点

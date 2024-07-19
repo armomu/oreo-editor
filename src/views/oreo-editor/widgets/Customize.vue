@@ -354,9 +354,10 @@
                 <a-image
                     :preview="false"
                     :width="216"
-                    :height="imageHeight"
-                    :fit="props.data.styles.imgFit"
+                    :height="167"
+                    fit="contain"
                     :src="props.data?.url || undefined"
+                    @click="onImage"
                 />
                 <a-row :gutter="8" class="mt-3">
                     <a-col :span="6">Img Fit</a-col>
@@ -388,13 +389,13 @@ const props = withDefaults(
     }>(),
     {}
 );
-const emit = defineEmits(['add-widget']);
-const imageHeight = computed(() => {
-    if (props.data) {
-        return (props.data.styles.height / props.data.styles.width) * 216;
-    }
-    return 0;
-});
+const emit = defineEmits(['add-widget', 'image']);
+// const imageHeight = computed(() => {
+//     if (props.data) {
+//         return (props.data.styles.height / props.data.styles.width) * 216;
+//     }
+//     return 0;
+// });
 
 const showExterior = computed(() => {
     if (props.data && props.data.type === VirtualDomType.Group) return false;
@@ -416,5 +417,9 @@ const showText = computed(() => {
 
 const onAddWidget = () => {
     emit('add-widget');
+};
+
+const onImage = () => {
+    emit('image');
 };
 </script>

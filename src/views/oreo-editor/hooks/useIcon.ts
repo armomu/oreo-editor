@@ -3,9 +3,8 @@ import { ref, type Ref } from 'vue';
 import materialIcons from './icon';
 import { cloneDeep } from 'lodash';
 import { VirtualDomType, beaseDom, type VirtualDom } from './enumTypes';
-import type { OreoPointerEvent } from './enumTypes';
 
-export const useIcon = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) => {
+export const useIcon = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom | undefined>) => {
     const iconState = ref({
         dialogVisible: false,
         list: materialIcons,

@@ -34,11 +34,6 @@
     .arco-collapse-item-active > .arco-collapse-item-header {
         border-color: transparent;
     }
-    // .arco-select-view-single.arco-select-view-size-small .arco-select-view-input, .arco-select-view-single.arco-select-view-size-small .arco-select-view-value
-    // {
-    //     font-size: 12px;
-    //     padding-top: -2px;
-    // }
     .arco-input-prepend {
         color: #999;
     }
@@ -120,8 +115,18 @@
     .bottom-tools {
         position: absolute;
         left: 50%;
-        bottom: 0;
+        bottom: 16px;
+        background: #ffffff;
         transform: translateX(-50%);
+        padding: 4px;
+        border-radius: 4px;
+    }
+
+    .scale-select {
+        width: 96px;
+        position: absolute;
+        right: 262px;
+        bottom: 16px;
     }
     .top_ruler {
         position: absolute;

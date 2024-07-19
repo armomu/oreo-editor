@@ -2,7 +2,7 @@ import { h, ref, type Ref } from 'vue';
 import ChartArea from '../widgets/charts/ChartArea.vue';
 import { type VirtualDom } from './enumTypes';
 
-export const useAddChart = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) => {
+export const useAddChart = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom | undefined>) => {
     const chartState = ref({
         dialogVisible: false,
     });
@@ -19,7 +19,9 @@ export const useAddChart = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) 
             x: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             y: [31, 40, 28, 51, 42, 109, 100],
         };
-        curDom.value.component = () => h(ChartArea, { ...option });
+        if (curDom.value) {
+            curDom.value.component = () => h(ChartArea, { ...option });
+        }
         chartState.value.dialogVisible = false;
     };
 

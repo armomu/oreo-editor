@@ -46,6 +46,9 @@
                     id="work_content"
                     @dragover="oreoApp.onDragover"
                     @drop="oreoApp.onDrop"
+                    :style="{
+                        scale: oreoApp.scale.value,
+                    }"
                 >
                     <Resizeble
                         v-for="(item, key) in oreoApp.appDom.value"
@@ -58,6 +61,7 @@
                         v-model:left="item.styles.left"
                         v-model:label="item.label"
                         :disable="oreoApp.disableDraResize.value"
+                        :scale="oreoApp.scale.value"
                         @snapLine="oreoApp.onSnapLine"
                         @mouser="oreoApp.openMenu"
                         @activated="oreoApp.onVirtualDom"
@@ -91,6 +95,17 @@
                 type="file"
                 @change="oreoApp.onAddImage"
             />
+
+            <a-select size="small" v-model="oreoApp.scale.value" class="scale-select">
+                <a-option :value="0.25">25%</a-option>
+                <a-option :value="0.5">50%</a-option>
+                <a-option :value="0.75">75%</a-option>
+                <a-option :value="1">100%</a-option>
+                <a-option :value="1.25">125%</a-option>
+                <a-option :value="1.5">150%</a-option>
+                <a-option :value="1.75">175%</a-option>
+                <a-option :value="2">200%</a-option>
+            </a-select>
             <div class="bottom-tools">
                 <v-btn
                     variant="text"
@@ -105,7 +120,7 @@
                     icon="mdi-card-outline"
                     size="x-small"
                     :color="oreoApp.mouseMode.draRact ? 'primary' : undefined"
-                    @click="oreoApp.onMouseMode('draRact')"
+                    @click="oreoApp.onBottomToolsDraRact"
                 />
                 <v-btn
                     variant="text"
@@ -119,7 +134,7 @@
                     icon="mdi-image-outline"
                     size="x-small"
                     :color="oreoApp.mouseMode.image ? 'primary' : undefined"
-                    @click="oreoApp.onFileRefClick"
+                    @click="oreoApp.onBottomToolsImage"
                 />
                 <v-btn
                     variant="text"

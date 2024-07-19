@@ -67,8 +67,8 @@ const showGroup = computed(() => {
     border-radius: 6px;
     .contextmenu_item {
         color: #fff;
-        line-height: 24px;
-        height: 24px;
+        line-height: 28px;
+        height: 28px;
         padding: 0 12px;
         margin: 2px 0;
         font-size: 11px;

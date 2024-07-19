@@ -2,7 +2,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import type { Ref } from 'vue';
 import { VirtualDomType } from './enumTypes';
 import type { VirtualDom } from './enumTypes';
-export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>) => {
+export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom | undefined>) => {
     const menuState = ref({
         visible: false,
         top: 0,
@@ -26,7 +26,8 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>)
     };
 
     const onMenuVisible = () => {
-        if (curDom.value.locked) return;
+        if (!curDom.value) return;
+        if (curDom.value && curDom.value.locked) return;
         curDom.value.visible = !curDom.value.visible;
     };
 
@@ -36,7 +37,7 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>)
         appDom.value.splice(index, 1);
     };
     const onMenuDelete = () => {
-        if (curDom.value.type === VirtualDomType.Group) {
+        if (curDom.value && curDom.value.type === VirtualDomType.Group) {
             const g: VirtualDom[] = [];
             for (let i = 0; i < appDom.value.length; i++) {
                 if (appDom.value[i].groupId === curDom.value.id) {
@@ -47,7 +48,7 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>)
                 delItem(item);
             });
         }
-        delItem(curDom.value);
+        curDom.value && delItem(curDom.value);
         // const index = appDom.value.findIndex((obj) => obj.id === curDom.value.id);
         // if (index < 0) return;
         // appDom.value.splice(index, 1);
@@ -55,6 +56,7 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>)
         console.log(appDom.value, 'del aft');
     };
     const onMenuLocked = () => {
+        if (!curDom.value) return;
         curDom.value.locked = !curDom.value.locked;
     };
     const onMenuGroup = () => {
@@ -72,7 +74,7 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>)
         }
     };
     const onMenuDisbandGroup = () => {
-        if (curDom.value.type === VirtualDomType.Group) {
+        if (curDom.value && curDom.value.type === VirtualDomType.Group) {
             for (let i = 0; i < appDom.value.length; i++) {
                 if (appDom.value[i].groupId === curDom.value.id) {
                     appDom.value[i].groupId = 0;
@@ -83,6 +85,7 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom>)
     };
 
     function onKeydown(event: KeyboardEvent) {
+        if (!curDom.value) return;
         if (curDom.value.input) return;
         if (event.code === 'Backspace' || event.code === 'Delete') {
             onMenuDelete();
