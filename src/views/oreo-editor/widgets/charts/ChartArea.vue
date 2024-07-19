@@ -4,7 +4,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
-import { useMainStore } from '@/stores/useMainStore';
 
 const props = withDefaults(
     defineProps<{
@@ -21,7 +20,6 @@ const props = withDefaults(
     }
 );
 
-const mainStore = useMainStore();
 const chartOptions = computed(() => {
     return {
         chart: {
@@ -33,9 +31,6 @@ const chartOptions = computed(() => {
         },
         grid: {
             borderColor: 'transparent',
-        },
-        theme: {
-            mode: mainStore.theme,
         },
         dataLabels: {
             enabled: false,
