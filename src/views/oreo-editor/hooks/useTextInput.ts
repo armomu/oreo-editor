@@ -1,26 +1,26 @@
 import type { Ref } from 'vue';
 import { beaseDom, VirtualDomType, type VirtualDom } from './enumTypes';
-import type { OreoPointerEvent } from './enumTypes';
+import type { OreoEvent } from './enumTypes';
 import { cloneDeep } from 'lodash';
 
 export const useTextInput = (
     appDom: Ref<VirtualDom[]>,
     curDom: Ref<VirtualDom | undefined>,
-    pointerEvent: OreoPointerEvent
+    oreoEvent: OreoEvent
 ) => {
     const onBlur = (e: Event) => {
         if (!curDom.value) return;
         curDom.value.input = false;
         curDom.value.locked = false;
         console.log(e);
-        pointerEvent.onMouseMode('boxSelect');
+        oreoEvent.onMouseMode('boxSelect');
     };
 
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
     let onEnteState = false;
     const onInput = (e: Event) => {
-        if (curDom.value && pointerEvent.mouseMode.text && !onEnteState) {
+        if (curDom.value && oreoEvent.mouseMode.text && !onEnteState) {
             // @ts-ignore
             context.font = window.getComputedStyle(e.target).getPropertyValue('font');
             const texts = (curDom.value.label || '').split('\n');
@@ -44,15 +44,16 @@ export const useTextInput = (
     };
 
     const onTextIconClick = () => {
-        pointerEvent.onMouseMode('text');
+        oreoEvent.onMouseMode('text');
     };
 
     let pointerDownCount = 0;
     // @ts-ignore
     // eslint-disable-next-line no-undef
     let pointerDownTimer: NodeJS.Timeout | null = null;
-    const draggableTextClick = (className: string, id: number) => {
+    const draggableTextClick = (is: boolean, className: string, id: number) => {
         if (
+            is &&
             curDom.value &&
             className.includes('draggable') &&
             id === curDom.value.id &&
@@ -74,6 +75,7 @@ export const useTextInput = (
     };
     const textWorkEventDown = (isText: boolean, className: string, e: PointerEvent) => {
         if (!isText) return;
+        e.preventDefault();
         if (curDom.value && curDom.value.input && className.includes('textarea')) {
             console.log('正在添加文字中，请继续编辑！');
             return;

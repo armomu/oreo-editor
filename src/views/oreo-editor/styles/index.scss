@@ -152,13 +152,13 @@
             overflow: hidden;
         }
         &.cursorText{
-            cursor: text;
+            cursor: text !important;
         }
         &.cursorCross{
-            cursor: crosshair;
+            cursor: crosshair !important;
         }
         &.cursorGrab{
-            cursor: grab;
+            cursor: grab !important;
         }
         .work_content {
             width: 1920px;
@@ -315,7 +315,7 @@
             }
         }
     }
-    .customizes_wrap {
+    .customizes {
         flex: 0 0 246px;
         width: 246px;
         overflow-y: auto;

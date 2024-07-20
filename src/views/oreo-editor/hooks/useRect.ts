@@ -1,14 +1,15 @@
 import { type Ref } from 'vue';
 import { cloneDeep } from 'lodash';
-import { beaseDom, type OreoPointerEvent, type VirtualDom } from './enumTypes';
+import { beaseDom, type OreoEvent, type VirtualDom } from './enumTypes';
 
 export const useRect = (
     appDom: Ref<VirtualDom[]>,
     curDom: Ref<VirtualDom | undefined>,
-    pointerEvent: OreoPointerEvent
+    oreoEvent: OreoEvent
 ) => {
     const rectWorkEventDown = (is: boolean, adding: Ref<boolean>, e: PointerEvent) => {
         if (!is) return;
+        e.preventDefault();
         const newDom = cloneDeep(beaseDom[0]);
         newDom.visible = false;
         newDom.active = false;
@@ -22,8 +23,9 @@ export const useRect = (
         appDom.value.push(newDom);
         adding.value = true;
     };
-    const rectWorkEventMove = (e: PointerEvent, layerX: number, layerY: number) => {
-        if (!curDom.value) return;
+    const rectWorkEventMove = (is: boolean, layerX: number, layerY: number, e: PointerEvent) => {
+        if (!is || !curDom.value) return;
+        e.preventDefault();
         curDom.value.visible = true;
 
         curDom.value.styles.width = Math.abs(e.layerX - layerX);
@@ -38,8 +40,8 @@ export const useRect = (
     const rectWorkEventUp = () => {};
 
     const onBottomToolsDraRact = () => {
-        pointerEvent.cancelActived();
-        pointerEvent.onMouseMode('draRact');
+        oreoEvent.cancelActived();
+        oreoEvent.onMouseMode('draRact');
     };
 
     return {

@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <!-- eslint-disable vue/valid-v-model -->
 <template>
-    <div class="customizes">
+    <div class="customizes" @contextmenu.prevent="() => {}">
         <a-collapse
             v-if="props.data"
             :default-active-key="['1', '2', '3', '4']"

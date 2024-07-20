@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 // import type { Ref } from 'vue';
 // import type { VirtualDom } from './useOreoApp';
-// import type { OreoPointerEvent } from './usePointer';
+// import type { OreoEvent } from './usePointer';
 
 export const useSnapLine = () => {
     const snapLine = ref<{

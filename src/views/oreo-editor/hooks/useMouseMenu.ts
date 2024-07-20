@@ -1,8 +1,12 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import type { Ref } from 'vue';
 import { VirtualDomType } from './enumTypes';
-import type { VirtualDom } from './enumTypes';
-export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom | undefined>) => {
+import type { OreoEvent, VirtualDom } from './enumTypes';
+export const useMouseMenu = (
+    appDom: Ref<VirtualDom[]>,
+    curDom: Ref<VirtualDom | undefined>,
+    oreoEvent: OreoEvent
+) => {
     const menuState = ref({
         visible: false,
         top: 0,
@@ -14,15 +18,16 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom |
     };
     const openMenu = (e: PointerEvent, item: VirtualDom) => {
         e.preventDefault();
-        menuState.value.left = e.clientX;
-        menuState.value.top = e.clientY;
+        menuState.value.left = e.layerX;
+        menuState.value.top = e.layerY;
         menuState.value.visible = true;
         // document.body.addEventListener('click', hideMenu);
         // setTimeout(() => {
         //     // document.body.removeEventListener('click', hideMenu);
         // }, 50);
-        console.log('openMenu====');
-        // curDom.value = item;
+        console.log('openMenu====', e);
+        curDom.value = item;
+        curDom.value.active = true;
     };
 
     const onMenuVisible = () => {
@@ -67,6 +72,7 @@ export const useMouseMenu = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom |
                 appDom.value[i].selected = false;
             }
         }
+        oreoEvent.getBoundsInfo();
         if (vg) {
             vg.name = 'Group';
             vg.virtualGroup = false;

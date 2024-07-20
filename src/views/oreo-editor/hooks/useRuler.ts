@@ -93,23 +93,27 @@ export const useRuler = () => {
     let scrollLeft = 0;
     let scrollTop = 0;
     let start = false;
-    const onHandStart = (x: number, y: number) => {
+    const rulerWorkEventDown = (is: boolean, x: number, y: number, e: PointerEvent) => {
+        if (!is) return;
+        e.preventDefault();
         start = true;
         startX = x;
         startY = y;
         scrollLeft = workAreaDomRef.value?.scrollLeft || 0;
         scrollTop = workAreaDomRef.value?.scrollTop || 0;
     };
-    const onHandMove = (event: PointerEvent) => {
-        if (!start) return;
-        const deltaX = event.clientX - startX;
-        const deltaY = event.clientY - startY;
-        console.log(scrollLeft - deltaX, scrollTop - deltaY, 'workAreaDomRef.value?.scrollLeft');
+    const rulerWorkEventMove = (is: boolean, e: PointerEvent) => {
+        if (!is || !start) return;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
         // const dom =
-        workAreaDomRef.value.scrollLeft = scrollLeft - deltaX;
-        workAreaDomRef.value.scrollTop = scrollTop - deltaY;
+        if (workAreaDomRef.value) {
+            workAreaDomRef.value.scrollLeft = scrollLeft - deltaX;
+            workAreaDomRef.value.scrollTop = scrollTop - deltaY;
+        }
     };
-    const onHandEnd = () => {
+    const rulerWorkEvenEnd = (is: boolean) => {
+        if (!is) return;
         scrollLeft = workAreaDomRef.value?.scrollLeft || 0;
         scrollTop = workAreaDomRef.value?.scrollTop || 0;
         start = false;
@@ -122,8 +126,8 @@ export const useRuler = () => {
         workAreaDomRef,
         leftRulerDom,
         topRulerDom,
-        onHandMove,
-        onHandStart,
-        onHandEnd,
+        rulerWorkEventDown,
+        rulerWorkEventMove,
+        rulerWorkEvenEnd,
     };
 };

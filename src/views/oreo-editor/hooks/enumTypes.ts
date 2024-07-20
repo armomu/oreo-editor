@@ -187,7 +187,7 @@ export interface ResizeOffset {
     height: number;
 }
 
-export interface OreoPointerEvent {
+export interface OreoEvent {
     mouseMode: MouseMode;
     selectBoxState: BoxSelectState;
     selectedList: Ref<VirtualDom[]>;
@@ -196,16 +196,18 @@ export interface OreoPointerEvent {
     onPointerUp: () => void;
     onDomDragging: () => void;
     onMouseMode: (name: string) => void;
+    getBoundsInfo: () => void;
     cancelSelect: () => void;
     cancelActived: () => void;
     deleteVirtualGroup: () => void;
 }
 
-interface MouseMode {
+export interface MouseMode {
     boxSelect: boolean;
     draRact: boolean;
     text: boolean;
     hand: boolean;
+    image: boolean;
 }
 interface BoxSelectState {
     visible: boolean;

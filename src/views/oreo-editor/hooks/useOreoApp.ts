@@ -7,6 +7,7 @@ import { useAlign } from './useAlign';
 import { useDragWidget } from './useDragWidget';
 import { useIcon } from './useIcon';
 import { useImage } from './useImage';
+import { useLayerPage } from './useLayerPage';
 import { useMouseMenu } from './useMouseMenu';
 import { useRect } from './useRect';
 import { useRuler } from './useRuler';
@@ -37,10 +38,10 @@ const OreoApp = () => {
     // });
     // 是否禁用所有可操作的图层
     const disableDraResize = computed(() => {
-        if (pointerEvent.mouseMode.text) {
+        if (oreoEvent.mouseMode.text) {
             return true;
         }
-        if (pointerEvent.mouseMode.draRact) {
+        if (oreoEvent.mouseMode.draRact) {
             return true;
         }
         return false;
@@ -91,12 +92,8 @@ const OreoApp = () => {
         // @ts-ignore 当前图层ID
         const e_t_did = parseInt(e.target?.getAttribute('uid') + '');
         console.log(className, 'onPointerDown');
-        if (mouseMode.hand) {
-            e.preventDefault();
-            rulerBarEvent.onHandStart(mouseState.startX, mouseState.startY);
-        }
+        // 每个模式下都要自己管理自己的事件冒泡 e.preventDefault();
         if (mouseMode.boxSelect) {
-            textInputEvent.draggableTextClick(className, e_t_did);
             // 当点击的对象是拖拽框
             if (className.includes('draggable') || className.includes('dr_text')) {
                 console.log('当前点击是拖拽框');
@@ -118,6 +115,8 @@ const OreoApp = () => {
                 selectBoxState.top = e.clientY + 'px';
             }
         }
+        rulerBarEvent.rulerWorkEventDown(mouseMode.hand, mouseState.startX, mouseState.startY, e);
+        textInputEvent.draggableTextClick(mouseMode.boxSelect, className, e_t_did);
         textInputEvent.textWorkEventDown(mouseMode.text, className, e);
         rectEvent.rectWorkEventDown(mouseMode.draRact, adding, e);
     };
@@ -137,7 +136,6 @@ const OreoApp = () => {
                 mouseState.offsetY = e.clientY - mouseState.startY;
             }
         }
-
         // 画框选框
         if (mouseState.down && mouseMode.boxSelect) {
             selectBoxState.visible = true;
@@ -150,36 +148,31 @@ const OreoApp = () => {
                 selectBoxState.top = e.clientY + 'px';
             }
         }
-        // 画矩形
-        if (mouseMode.draRact && adding) {
-            rectEvent.rectWorkEventMove(e, mouseState.layerX, mouseState.layerY);
-        }
-        if (mouseMode.image && curDom.value) {
-            curDom.value.styles.left = e.layerX + 0;
-            curDom.value.styles.top = e.layerY + 0;
-        }
-        if (mouseMode.hand) {
-            rulerBarEvent.onHandMove(e);
-        }
+        rectEvent.rectWorkEventMove(
+            mouseMode.draRact && adding.value,
+            mouseState.layerX,
+            mouseState.layerY,
+            e
+        );
+        imageEvent.imageWorkEventMove(mouseMode.draRact, e);
+        rulerBarEvent.rulerWorkEventMove(mouseMode.hand, e);
     };
 
     const onPointerUp = () => {
         mouseState.down = false;
         selectBoxState.visible = false;
         mouseState.draggableActive = false;
-        if (mouseMode.hand) {
-            rulerBarEvent.onHandEnd();
-        }
+        rulerBarEvent.rulerWorkEvenEnd(mouseMode.hand);
         if (curDom.value && !curDom.value.input) {
             onMouseMode('boxSelect');
         }
         adding.value = false;
-        checkSelectBox();
+        checkSelectWrap();
     };
 
     // 查询有没有对象被选中
     // 如果有选中图层会包含在selectedList数组中
-    const checkSelectBox = () => {
+    const checkSelectWrap = () => {
         if (!mouseMode.boxSelect) return;
         if (!selectBoxState.width || parseFloat(selectBoxState.width) < 5) {
             // console.log('没有进入 ========= 查询有没有对象被选中');
@@ -218,38 +211,15 @@ const OreoApp = () => {
         if (selectedList.value.length > 0) _id_ = new Date().getTime(); // 增加虚拟组合的ID
         // 选中多个对象后 把它们放入一个虚拟组合里
         if (selectedList.value.length > 1) {
-            let minTop = Infinity;
-            let minLeft = Infinity;
-            let maxBottom = -Infinity;
-            let maxRight = -Infinity;
-            const topList: number[] = [];
-            const leftList: number[] = [];
-            for (let i = 0; i < selectedList.value.length; i++) {
-                selectedList.value[i].groupId = _id_;
-                const { width, height, top, left } = selectedList.value[i].styles;
-                topList.push(top);
-                leftList.push(left);
-                if (top < minTop) {
-                    minTop = top;
-                }
-                if (left < minLeft) {
-                    minLeft = left;
-                }
-                const bottom = top + height;
-                const right = left + width;
-                if (bottom > maxBottom) {
-                    maxBottom = bottom;
-                }
-                if (right > maxRight) {
-                    maxRight = right;
-                }
-            }
+            const boundsInfo = getBoundsInfo((item) => {
+                item.groupId = _id_;
+            });
             const obj = cloneDeep(virtualGroup);
             obj.id = _id_;
-            obj.styles.width = maxRight - minLeft;
-            obj.styles.height = maxBottom - minTop;
-            obj.styles.top = Math.min(...topList);
-            obj.styles.left = Math.min(...leftList);
+            obj.styles.width = boundsInfo.width;
+            obj.styles.height = boundsInfo.height;
+            obj.styles.top = boundsInfo.top;
+            obj.styles.left = boundsInfo.left;
             curDom.value = obj;
             appDom.value.push(curDom.value);
         }
@@ -258,6 +228,43 @@ const OreoApp = () => {
         selectBoxState.width = '';
         selectBoxState.top = '';
         selectBoxState.left = '';
+    };
+
+    // 获取选择的图层边界
+    const getBoundsInfo = (callback?: (_: VirtualDom) => void) => {
+        let minTop = Infinity;
+        let minLeft = Infinity;
+        let maxBottom = -Infinity;
+        let maxRight = -Infinity;
+        const topList: number[] = [];
+        const leftList: number[] = [];
+        for (let i = 0; i < selectedList.value.length; i++) {
+            // selectedList.value[i].groupId = _id_;
+            callback && callback(selectedList.value[i]);
+            const { width, height, top, left } = selectedList.value[i].styles;
+            topList.push(top);
+            leftList.push(left);
+            if (top < minTop) {
+                minTop = top;
+            }
+            if (left < minLeft) {
+                minLeft = left;
+            }
+            const bottom = top + height;
+            const right = left + width;
+            if (bottom > maxBottom) {
+                maxBottom = bottom;
+            }
+            if (right > maxRight) {
+                maxRight = right;
+            }
+        }
+        return {
+            top: Math.min(...topList),
+            width: maxRight - minLeft,
+            height: maxBottom - minTop,
+            left: Math.min(...leftList),
+        };
     };
 
     const onDomDragging = () => {
@@ -304,6 +311,7 @@ const OreoApp = () => {
     const deleteVirtualGroup = () => {
         const vg = appDom.value.find((item) => item.virtualGroup);
         for (let i = 0; i < appDom.value.length; i++) {
+            appDom.value[i].selected = false;
             if (vg && appDom.value[i].groupId === vg.id) {
                 appDom.value[i].groupId = 0;
             }
@@ -350,8 +358,13 @@ const OreoApp = () => {
 
     function findUids(id: number) {
         const result: VirtualDom[] = [];
+        // let _curDom: VirtualDom | undefined = undefined
         function findChildren(items: VirtualDom[], parentId: number) {
             for (let i = 0; i < items.length; i++) {
+                // if (setCurDom && id === items[i].id) {
+                //     curDom.value = items[i];
+                //     curDom.value.active = true;
+                // }
                 const item = items[i];
                 if (item.groupId === parentId) {
                     result.push(item);
@@ -359,7 +372,9 @@ const OreoApp = () => {
                 }
             }
         }
+
         findChildren(appDom.value, id);
+
         return result;
     }
 
@@ -428,7 +443,7 @@ const OreoApp = () => {
     // test
     appDom.value = testJson._rawValue as any;
 
-    const pointerEvent = {
+    const oreoEvent = {
         mouseMode,
         selectBoxState,
         selectedList,
@@ -437,20 +452,22 @@ const OreoApp = () => {
         onPointerUp,
         onDomDragging,
         onMouseMode,
+        getBoundsInfo,
         cancelSelect,
         cancelActived,
         deleteVirtualGroup,
     };
     const rulerBarEvent = useRuler();
-    const dragWidgetEvent = useDragWidget(appDom, curDom, pointerEvent);
-    const mouseMenuEvent = useMouseMenu(appDom, curDom);
+    const dragWidgetEvent = useDragWidget(appDom, curDom, oreoEvent);
+    const mouseMenuEvent = useMouseMenu(appDom, curDom, oreoEvent);
     const iconEvent = useIcon(appDom, curDom);
-    const textInputEvent = useTextInput(appDom, curDom, pointerEvent);
+    const textInputEvent = useTextInput(appDom, curDom, oreoEvent);
     const align = useAlign(appDom);
     const snapLineEvent = useSnapLine();
     const chartEvent = useAddChart(appDom, curDom);
-    const imageEvent = useImage(appDom, curDom, pointerEvent);
-    const rectEvent = useRect(appDom, curDom, pointerEvent);
+    const imageEvent = useImage(appDom, curDom, oreoEvent);
+    const rectEvent = useRect(appDom, curDom, oreoEvent);
+    // const layerPageEvent = useLayerPage(appDom, curDom, oreoEvent);
 
     return {
         appDom,
@@ -465,7 +482,7 @@ const OreoApp = () => {
         jsonViewerVisible,
         align,
         ...snapLineEvent,
-        ...pointerEvent,
+        ...oreoEvent,
         ...dragWidgetEvent,
         ...rulerBarEvent,
         ...mouseMenuEvent,

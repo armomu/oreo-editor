@@ -1,48 +1,59 @@
 <template>
-    <a-tree
-        @select="onSelect"
-        @check="onCheck"
-        @expand="onExpand"
-        :data="treeData"
-        block-node
-        show-line
-        size="small"
+    <a-collapse
+        :default-active-key="['1', '2']"
+        :bordered="false"
+        :show-expand-icon="false"
+        expand-icon-position="right"
     >
-        <template #extra="nodeData">
-            <v-icon icon="mdi-trash-can-outline" size="x-small" @click="onDel(nodeData)" />
-            <v-icon
-                v-if="!nodeData.item.locked"
-                icon="mdi-lock-outline"
-                size="x-small"
-                class="ml-1"
-                @click="onLock(nodeData)"
-            />
-            <v-icon
-                v-else
-                icon="mdi-lock-open-variant-outline"
-                size="x-small"
-                class="ml-1"
-                @click="onLock(nodeData)"
-            />
-            <v-icon
-                v-if="!nodeData.item.visible"
-                icon="mdi-eye-outline"
-                size="x-small"
-                class="ml-1"
-                @click="onVisible(nodeData)"
-            />
-            <v-icon
-                v-else
-                icon="mdi-eye-off-outline"
-                size="x-small"
-                class="ml-1"
-                @click="onVisible(nodeData)"
-            />
-        </template>
-        <template #switcher-icon="{ isLeaf }">
-            <IconDown v-if="!isLeaf" />
-        </template>
-    </a-tree>
+        <a-collapse-item header="Pages" key="2"> </a-collapse-item>
+        <a-collapse-item header="Layers" key="1">
+            <a-tree
+                @select="onSelect"
+                @check="onCheck"
+                @expand="onExpand"
+                :selected-keys="selectedKeys"
+                :data="treeData"
+                block-node
+                show-line
+                size="small"
+            >
+                <template #extra="nodeData">
+                    <v-icon icon="mdi-trash-can-outline" size="x-small" @click="onDel(nodeData)" />
+                    <v-icon
+                        v-if="!nodeData.item.locked"
+                        icon="mdi-lock-outline"
+                        size="x-small"
+                        class="ml-1"
+                        @click="onLock(nodeData)"
+                    />
+                    <v-icon
+                        v-else
+                        icon="mdi-lock-open-variant-outline"
+                        size="x-small"
+                        class="ml-1"
+                        @click="onLock(nodeData)"
+                    />
+                    <v-icon
+                        v-if="!nodeData.item.visible"
+                        icon="mdi-eye-outline"
+                        size="x-small"
+                        class="ml-1"
+                        @click="onVisible(nodeData)"
+                    />
+                    <v-icon
+                        v-else
+                        icon="mdi-eye-off-outline"
+                        size="x-small"
+                        class="ml-1"
+                        @click="onVisible(nodeData)"
+                    />
+                </template>
+                <template #switcher-icon="{ isLeaf }">
+                    <IconDown v-if="!isLeaf" />
+                </template>
+            </a-tree>
+        </a-collapse-item>
+    </a-collapse>
 </template>
 <script lang="ts" setup>
 import { computed, h } from 'vue';
@@ -60,6 +71,16 @@ const props = withDefaults(
 const treeData = computed(() => {
     const res = buildTree(props.data, 0);
     return res;
+});
+
+const selectedKeys = computed(() => {
+    const ids = [];
+    for (let i = 0; i < props.data.length; i++) {
+        if (props.data[i].active || props.data[i].selected) {
+            ids.push(props.data[i].id + '');
+        }
+    }
+    return ids;
 });
 
 const emit = defineEmits(['select', 'del']);
@@ -140,28 +161,3 @@ interface TreeEvent {
     selectedNodes: TreeData[];
 }
 </script>
-<style lang="scss">
-.contextmenu {
-    position: fixed;
-    left: 200px;
-    top: 300px;
-    z-index: 999;
-    padding: 4px;
-    .contextmenu_item {
-        line-height: 24px;
-        height: 24px;
-        padding: 0 12px;
-        margin: 2px 0;
-        font-size: 11px;
-        width: 200px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        opacity: 0.8;
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.15);
-        }
-    }
-}
-</style>
