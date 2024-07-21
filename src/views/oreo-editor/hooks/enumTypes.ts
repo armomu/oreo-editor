@@ -44,6 +44,7 @@ export const beaseDom: VirtualDom[] = [
         visible: true,
         selected: false,
         locked: false,
+        disabled: false,
         styles: { ...beaseDomStyle },
     },
     {
@@ -56,6 +57,7 @@ export const beaseDom: VirtualDom[] = [
         visible: true,
         selected: false,
         locked: false,
+        disabled: false,
         styles: { ...beaseDomStyle, width: 90, radius: 45 },
     },
     {
@@ -69,6 +71,7 @@ export const beaseDom: VirtualDom[] = [
         selected: false,
         locked: false,
         type: VirtualDomType.Text,
+        disabled: false,
         styles: { ...beaseDomStyle, fill: false },
         fontStyle: {
             color: '#333333',
@@ -96,6 +99,7 @@ export const beaseDom: VirtualDom[] = [
         visible: true,
         selected: false,
         locked: false,
+        disabled: false,
         url: 'https://github.com/armomu/oreo-editor/raw/main/public/w.png',
         styles: { ...beaseDomStyle, imgFit: 'contain', background: '#ffffff' },
     },
@@ -111,6 +115,7 @@ export const virtualGroup: VirtualDom = {
     visible: true,
     selected: false,
     locked: false,
+    disabled: false,
     styles: { ...beaseDomStyle, fill: false },
 };
 
@@ -121,12 +126,13 @@ export interface VirtualDom {
     name: string;
     icon: string; // 统一用Vuetify mdi-xxxx这套
     label?: string; // 展示文本 或者title用
-    type: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0组合，1矩形，2圆形，3文本，4图片，5视频
+    type: VirtualDomType;
     url?: string; // 图片或者资源链接
     active: boolean; // 进行拖变大小状态
     selected: boolean; // 选中状态
     locked: boolean; // 锁定状态
     visible: boolean;
+    disabled: boolean;
     input?: boolean; // 文本特有的编辑文本中状态
     styles: ElementStyles;
     fontStyle?: FontStyle;

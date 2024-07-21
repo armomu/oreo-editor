@@ -58,7 +58,6 @@ export const useMouseMenu = (
         // if (index < 0) return;
         // appDom.value.splice(index, 1);
         // TODO DEL Group
-        console.log(appDom.value, 'del aft');
     };
     const onMenuLocked = () => {
         if (!curDom.value) return;

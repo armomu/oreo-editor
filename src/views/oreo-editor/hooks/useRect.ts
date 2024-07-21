@@ -13,21 +13,22 @@ export const useRect = (
         if (!is) return;
         e.preventDefault();
         const newDom = cloneDeep(beaseDom[0]);
-        newDom.visible = true;
+        newDom.active = false;
         newDom.selected = true;
+        newDom.locked = false;
         newDom.styles.width = 0;
         newDom.styles.height = 0;
         startX = e.layerX + 0;
         startY = e.layerY + 0;
-        newDom.styles.left = startX;
-        newDom.styles.top = startY;
+        newDom.styles.left = startX + 0;
+        newDom.styles.top = startX + 0;
         newDom.id = new Date().getTime();
         curDom.value = newDom;
         appDom.value.push(newDom);
     };
     const rectWorkEventMove = (is: boolean, e: PointerEvent) => {
         if (!is || !curDom.value) return;
-        // e.preventDefault();
+        e.preventDefault();
         curDom.value.visible = true;
         curDom.value.styles.width = Math.abs(e.layerX - startX);
         curDom.value.styles.height = Math.abs(e.layerY - startY);

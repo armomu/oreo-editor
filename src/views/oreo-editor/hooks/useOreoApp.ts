@@ -82,7 +82,7 @@ const OreoApp = () => {
     const onPointerMove = (e: PointerEvent) => {
         boxSelectEvent.boxSelectWorkEventMove(mouseMode.boxSelect, e);
         rectEvent.rectWorkEventMove(mouseMode.draRact, e);
-        imageEvent.imageWorkEventMove(mouseMode.draRact, e);
+        imageEvent.imageWorkEventMove(mouseMode.image, e);
         rulerBarEvent.rulerWorkEventMove(mouseMode.hand, e);
     };
     const onPointerUp = () => {

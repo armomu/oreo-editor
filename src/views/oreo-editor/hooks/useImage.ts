@@ -18,6 +18,7 @@ export const useImage = (
 
     const imageWorkEventMove = (is: boolean, e: PointerEvent) => {
         if (is && curDom.value) {
+            console.log('iamge=======');
             curDom.value.styles.left = e.layerX + 0;
             curDom.value.styles.top = e.layerY + 0;
         }
