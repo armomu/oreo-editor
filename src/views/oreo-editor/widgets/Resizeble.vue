@@ -166,6 +166,7 @@ const funStop = (e: ResizeOffset) => {
     emit('update:top', e.top);
     emit('update:left', e.left);
     emit('stop', e);
+    console.log('更新了ResizeOffset');
 };
 
 const getRefLineParams = (params: any) => {

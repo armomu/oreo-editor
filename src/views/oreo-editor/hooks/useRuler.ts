@@ -93,12 +93,12 @@ export const useRuler = () => {
     let scrollLeft = 0;
     let scrollTop = 0;
     let start = false;
-    const rulerWorkEventDown = (is: boolean, x: number, y: number, e: PointerEvent) => {
+    const rulerWorkEventDown = (is: boolean, e: PointerEvent) => {
         if (!is) return;
         e.preventDefault();
         start = true;
-        startX = x;
-        startY = y;
+        startX = e.clientX;
+        startY = e.clientY;
         scrollLeft = workAreaDomRef.value?.scrollLeft || 0;
         scrollTop = workAreaDomRef.value?.scrollTop || 0;
     };

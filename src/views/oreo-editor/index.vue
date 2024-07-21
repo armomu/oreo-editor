@@ -70,9 +70,9 @@
                     />
                 </div>
                 <div
-                    v-if="oreoApp.selectBoxState.visible"
+                    v-if="oreoApp.boxSelectState.visible"
                     class="boxSelectHelper"
-                    :style="oreoApp.selectBoxState"
+                    :style="oreoApp.boxSelectState"
                 ></div>
             </div>
             <BottomToolsBar

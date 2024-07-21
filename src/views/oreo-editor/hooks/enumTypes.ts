@@ -189,14 +189,14 @@ export interface ResizeOffset {
 
 export interface OreoEvent {
     mouseMode: MouseMode;
-    selectBoxState: BoxSelectState;
     selectedList: Ref<VirtualDom[]>;
-    onPointerDown: (e: PointerEvent) => void;
-    onPointerMove: (e: PointerEvent) => void;
-    onPointerUp: () => void;
-    onDomDragging: () => void;
     onMouseMode: (name: string) => void;
-    getBoundsInfo: () => void;
+    getBoundsInfo: (callback?: (_: VirtualDom) => void) => {
+        top: number;
+        width: number;
+        height: number;
+        left: number;
+    };
     cancelSelect: () => void;
     cancelActived: () => void;
     deleteVirtualGroup: () => void;

@@ -1,5 +1,5 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
-import { VirtualDomType, beaseDom, virtualGroup } from './enumTypes';
+import { VirtualDomType, beaseDom } from './enumTypes';
 import type { VirtualDom, ResizeOffset } from './enumTypes';
 
 import { useAddChart } from './useAddChart';
@@ -11,12 +11,12 @@ import { useLayerPage } from './useLayerPage';
 import { useMouseMenu } from './useMouseMenu';
 import { useRect } from './useRect';
 import { useRuler } from './useRuler';
+import { useBoxSelect } from './useBoxSelect';
 import { useSnapLine } from './useSnapLine';
 import { useTextInput } from './useTextInput';
 import { useUndoRedo } from './useUndoRedo';
 // 测试导出的数据
 import testJson from './test.json';
-import { cloneDeep } from 'lodash';
 
 const OreoApp = () => {
     // 所有图层
@@ -28,14 +28,6 @@ const OreoApp = () => {
     });
     // 当前视图放大的倍数
     const scale = ref(1);
-    // const scale = computed({
-    //     get() {
-    //         return _scale.value * 100;
-    //     },
-    //     set(val: number) {
-    //         _scale.value = val / 100;
-    //     },
-    // });
     // 是否禁用所有可操作的图层
     const disableDraResize = computed(() => {
         if (oreoEvent.mouseMode.text) {
@@ -54,39 +46,10 @@ const OreoApp = () => {
         image: false, // 添加图像
         hand: false, // 移动视图
     });
-    // let haSelectedList: VirtualDom[] = [];
     // 当前框选内所有的图层
     const selectedList = ref<VirtualDom[]>([]);
-    // 框选框视图状态
-    const selectBoxState = reactive({
-        visible: false,
-        width: '',
-        height: '',
-        top: '',
-        left: '',
-    });
-    // 记录鼠标移动数据
-    const mouseState = reactive({
-        draggableActive: false, // 可操作图层
-        down: false,
-        startX: 0,
-        startY: 0,
-        layerX: 0,
-        layerY: 0,
-        endX: 0,
-        endY: 0,
-        offsetX: 0,
-        offsetY: 0,
-    });
-
-    // 是否正在添加新的对象中
-    const adding = ref(false);
 
     const onPointerDown = (e: PointerEvent) => {
-        mouseState.startX = e.clientX + 0;
-        mouseState.startY = e.clientY + 0;
-        mouseState.layerX = e.layerX + 0;
-        mouseState.layerY = e.layerY + 0;
         // @ts-ignore
         const className = e.target?.className || '';
         // @ts-ignore 当前图层ID
@@ -97,7 +60,7 @@ const OreoApp = () => {
             // 当点击的对象是拖拽框
             if (className.includes('draggable') || className.includes('dr_text')) {
                 console.log('当前点击是拖拽框');
-                mouseState.draggableActive = true;
+                // mouseState.draggableActive = true;
                 // 找出当前ID所有子对象 包括组合子组合中的对象
                 selectedList.value = findUids(e_t_did);
                 return;
@@ -108,126 +71,26 @@ const OreoApp = () => {
                 return;
             }
             deleteVirtualGroup();
-            // 设置键菜单位置信息
-            if (className.includes('work_content') || className.includes('work-area')) {
-                mouseState.down = true;
-                selectBoxState.left = e.clientX + 'px';
-                selectBoxState.top = e.clientY + 'px';
-            }
         }
-        rulerBarEvent.rulerWorkEventDown(mouseMode.hand, mouseState.startX, mouseState.startY, e);
+        boxSelectEvent.boxSelectWorkEventDown(mouseMode.boxSelect, className, e);
+        rulerBarEvent.rulerWorkEventDown(mouseMode.hand, e);
         textInputEvent.draggableTextClick(mouseMode.boxSelect, className, e_t_did);
         textInputEvent.textWorkEventDown(mouseMode.text, className, e);
-        rectEvent.rectWorkEventDown(mouseMode.draRact, adding, e);
+        rectEvent.rectWorkEventDown(mouseMode.draRact, e);
     };
 
     const onPointerMove = (e: PointerEvent) => {
-        mouseState.endX = e.clientX;
-        mouseState.endY = e.clientY;
-        if (mouseState.draggableActive) {
-            if (e.clientX < mouseState.startX) {
-                mouseState.offsetX = -mouseState.startX - e.clientX;
-            } else {
-                mouseState.offsetX = e.clientX - mouseState.startX;
-            }
-            if (e.clientY < mouseState.startY) {
-                mouseState.offsetY = -mouseState.startY - e.clientY;
-            } else {
-                mouseState.offsetY = e.clientY - mouseState.startY;
-            }
-        }
-        // 画框选框
-        if (mouseState.down && mouseMode.boxSelect) {
-            selectBoxState.visible = true;
-            selectBoxState.width = Math.abs(e.clientX - mouseState.startX) + 'px';
-            selectBoxState.height = Math.abs(e.clientY - mouseState.startY) + 'px';
-            if (e.clientX < mouseState.startX) {
-                selectBoxState.left = e.clientX + 'px';
-            }
-            if (e.clientY < mouseState.startY) {
-                selectBoxState.top = e.clientY + 'px';
-            }
-        }
-        rectEvent.rectWorkEventMove(
-            mouseMode.draRact && adding.value,
-            mouseState.layerX,
-            mouseState.layerY,
-            e
-        );
+        boxSelectEvent.boxSelectWorkEventMove(mouseMode.boxSelect, e);
+        rectEvent.rectWorkEventMove(mouseMode.draRact, e);
         imageEvent.imageWorkEventMove(mouseMode.draRact, e);
         rulerBarEvent.rulerWorkEventMove(mouseMode.hand, e);
     };
-
     const onPointerUp = () => {
-        mouseState.down = false;
-        selectBoxState.visible = false;
-        mouseState.draggableActive = false;
+        boxSelectEvent.boxSelectWorkEventUp(mouseMode.boxSelect);
         rulerBarEvent.rulerWorkEvenEnd(mouseMode.hand);
         if (curDom.value && !curDom.value.input) {
             onMouseMode('boxSelect');
         }
-        adding.value = false;
-        checkSelectWrap();
-    };
-
-    // 查询有没有对象被选中
-    // 如果有选中图层会包含在selectedList数组中
-    const checkSelectWrap = () => {
-        if (!mouseMode.boxSelect) return;
-        if (!selectBoxState.width || parseFloat(selectBoxState.width) < 5) {
-            // console.log('没有进入 ========= 查询有没有对象被选中');
-            return;
-        }
-        // 获取所有对象集合
-        const doms = document.getElementsByClassName('vdr');
-        const left = parseFloat(selectBoxState.left);
-        const top = parseFloat(selectBoxState.top);
-        const width = parseFloat(selectBoxState.width);
-        const height = parseFloat(selectBoxState.height);
-
-        // 所有包含在框选内的图层、组合的ID，不包含虚拟组合
-        const uids: number[] = [];
-        for (let i = 0; i < doms.length; i++) {
-            const rect = doms[i].getBoundingClientRect();
-            const isContained =
-                left <= rect.left &&
-                left + width >= rect.right &&
-                top <= rect.top &&
-                top + height >= rect.bottom;
-            if (isContained) {
-                uids.push(parseFloat(doms[i].getAttribute('uid') + ''));
-            }
-        }
-        // 获得框选组合
-        selectedList.value = [];
-        for (let i = 0; i < appDom.value.length; i++) {
-            // 需要去除包含在组内到的对象 只得到没有 组合的图层和组合框 组合框对象不包含
-            if (uids.includes(appDom.value[i].id) && !appDom.value[i].groupId) {
-                appDom.value[i].selected = true;
-                selectedList.value.push(appDom.value[i]);
-            }
-        }
-        let _id_ = 0;
-        if (selectedList.value.length > 0) _id_ = new Date().getTime(); // 增加虚拟组合的ID
-        // 选中多个对象后 把它们放入一个虚拟组合里
-        if (selectedList.value.length > 1) {
-            const boundsInfo = getBoundsInfo((item) => {
-                item.groupId = _id_;
-            });
-            const obj = cloneDeep(virtualGroup);
-            obj.id = _id_;
-            obj.styles.width = boundsInfo.width;
-            obj.styles.height = boundsInfo.height;
-            obj.styles.top = boundsInfo.top;
-            obj.styles.left = boundsInfo.left;
-            curDom.value = obj;
-            appDom.value.push(curDom.value);
-        }
-        // 取消框选的状态
-        selectBoxState.height = '';
-        selectBoxState.width = '';
-        selectBoxState.top = '';
-        selectBoxState.left = '';
     };
 
     // 获取选择的图层边界
@@ -239,7 +102,6 @@ const OreoApp = () => {
         const topList: number[] = [];
         const leftList: number[] = [];
         for (let i = 0; i < selectedList.value.length; i++) {
-            // selectedList.value[i].groupId = _id_;
             callback && callback(selectedList.value[i]);
             const { width, height, top, left } = selectedList.value[i].styles;
             topList.push(top);
@@ -268,6 +130,7 @@ const OreoApp = () => {
     };
 
     const onDomDragging = () => {
+        // console.log('DomDragging=====');
         if (selectedList.value.length > 0 && curDom.value) {
             const minTop = Math.min(...selectedList.value.map((vd) => vd.styles.top));
             const minLeft = Math.min(...selectedList.value.map((vd) => vd.styles.left));
@@ -334,6 +197,7 @@ const OreoApp = () => {
 
     // 点击了可操作的图层
     const onVirtualDom = (val: VirtualDom) => {
+        console.log(val, '设置了curDom');
         curDom.value = val;
     };
     // 删除图层
@@ -343,6 +207,7 @@ const OreoApp = () => {
         appDom.value.splice(index, 1);
     };
 
+    // 可操作图层宽高发生了变化
     const onResize = (val: ResizeOffset) => {
         // BUG 为什么解除组合圆形的宽会变大
         if (curDom.value && curDom.value.type === VirtualDomType.Circle) {
@@ -440,17 +305,12 @@ const OreoApp = () => {
     });
 
     const jsonViewerVisible = ref(false);
-    // test
+    // 添加测试图层数据
     appDom.value = testJson._rawValue as any;
 
     const oreoEvent = {
         mouseMode,
-        selectBoxState,
         selectedList,
-        onPointerDown,
-        onPointerMove,
-        onPointerUp,
-        onDomDragging,
         onMouseMode,
         getBoundsInfo,
         cancelSelect,
@@ -467,13 +327,17 @@ const OreoApp = () => {
     const chartEvent = useAddChart(appDom, curDom);
     const imageEvent = useImage(appDom, curDom, oreoEvent);
     const rectEvent = useRect(appDom, curDom, oreoEvent);
-    // const layerPageEvent = useLayerPage(appDom, curDom, oreoEvent);
+    const boxSelectEvent = useBoxSelect(appDom, curDom, selectedList, oreoEvent);
 
     return {
         appDom,
         widgets,
         curDom,
         scale,
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
+        onDomDragging,
         onVirtualDom,
         onDelVirtualDom,
         onResize,
@@ -491,6 +355,7 @@ const OreoApp = () => {
         ...chartEvent,
         ...imageEvent,
         ...rectEvent,
+        ...boxSelectEvent,
     };
 };
 export default OreoApp;
