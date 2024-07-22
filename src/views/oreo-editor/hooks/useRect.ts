@@ -7,21 +7,35 @@ export const useRect = (
     curDom: Ref<VirtualDom | undefined>,
     oreoEvent: OreoEvent
 ) => {
-    let startX = 0;
-    let startY = 0;
+    let divRectScrollTop = 0;
+    let divRectLeft = 0;
+    let clientX = 0;
+    let clientY = 0;
+    // const clientEndX = 0;
+    // const clientEndY = 0;
+
     const rectWorkEventDown = (is: boolean, e: PointerEvent) => {
         if (!is) return;
         e.preventDefault();
+        // @ts-ignore
+        const divRect = e.target.getBoundingClientRect() as DOMRect;
+        // @ts-ignore
+        divRectScrollTop = e.target.scrollTop;
+        // @ts-ignore
+        divRectLeft = divRect.left - e.target.scrollLeft;
+        clientX = e.clientX - divRectLeft - 100;
+        clientY = e.clientY - divRectScrollTop - 100;
+
         const newDom = cloneDeep(beaseDom[0]);
         newDom.active = false;
         newDom.selected = true;
         newDom.locked = false;
         newDom.styles.width = 0;
         newDom.styles.height = 0;
-        startX = e.layerX + 0;
-        startY = e.layerY + 0;
-        newDom.styles.left = startX + 0;
-        newDom.styles.top = startX + 0;
+
+        newDom.styles.left = clientX;
+        newDom.styles.top = clientY;
+
         newDom.id = new Date().getTime();
         curDom.value = newDom;
         appDom.value.push(newDom);
@@ -30,16 +44,16 @@ export const useRect = (
         if (!is || !curDom.value) return;
         e.preventDefault();
         curDom.value.visible = true;
-        curDom.value.styles.width = Math.abs(e.layerX - startX);
-        curDom.value.styles.height = Math.abs(e.layerY - startY);
-        curDom.value.styles.top = startX + 0;
-        curDom.value.styles.left = startY + 0;
-        if (e.layerX < startX) {
-            curDom.value.styles.left = e.layerX + 0;
-        }
-        if (e.layerY < startY) {
-            curDom.value.styles.top = e.layerY + 0;
-        }
+
+        e.clientX - divRectLeft;
+        curDom.value.styles.width = Math.abs(e.clientX - divRectLeft - 100 - clientX);
+        curDom.value.styles.height = Math.abs(e.clientY - divRectScrollTop - 100 - clientY);
+        // if (e.layerX < startX) {
+        //     curDom.value.styles.left = e.layerX + 0;
+        // }
+        // if (e.layerY < startY) {
+        //     curDom.value.styles.top = e.layerY + 0;
+        // }
     };
     const rectWorkEventUp = () => {};
 

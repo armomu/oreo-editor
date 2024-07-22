@@ -49,11 +49,10 @@ export const useBoxSelect = (
         divRectScrollTop = e.target.scrollTop;
         // @ts-ignore
         divRectLeft = divRect.left - e.target.scrollLeft;
-        console.log(divRect, divRectScrollTop);
-        boxSelectState.startX = e.clientX - divRectLeft;
-        boxSelectState.startY = e.clientY + divRectScrollTop;
         clientX = e.clientX;
         clientY = e.clientY;
+        boxSelectState.startX = e.clientX - divRectLeft;
+        boxSelectState.startY = e.clientY + divRectScrollTop;
     };
     const boxSelectWorkEventMove = (is: boolean, e: PointerEvent) => {
         if (!is || !mouseDown) return;

@@ -85,6 +85,8 @@ export const useRuler = () => {
     const onWorkAreaScroll = () => {
         // const leftRulerDom = leftRulerDom.value as HTMLDivElement;
         leftRulerDom.value.style.top = `-${workAreaDomRef.value?.scrollTop}px`;
+        const left = parseFloat(workAreaDomRef.value?.scrollLeft + '');
+        topRulerDom.value.style.left = `${220 - left}px`;
     };
 
     let startX = 0;
