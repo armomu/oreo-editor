@@ -28,6 +28,7 @@ const OreoApp = () => {
     });
     // 当前视图放大的倍数
     const scale = ref(1);
+
     // 是否禁用所有可操作的图层
     const disableDraResize = computed(() => {
         if (oreoEvent.mouseMode.text) {
@@ -85,14 +86,14 @@ const OreoApp = () => {
         imageEvent.imageWorkEventMove(mouseMode.image, e);
         rulerBarEvent.rulerWorkEventMove(mouseMode.hand, e);
     };
-    const onPointerUp = () => {
-        boxSelectEvent.boxSelectWorkEventUp(mouseMode.boxSelect);
+
+    const onPointerUp = (e: PointerEvent) => {
+        boxSelectEvent.boxSelectWorkEventUp(mouseMode.boxSelect, e);
         rulerBarEvent.rulerWorkEvenEnd(mouseMode.hand);
         if (curDom.value && !curDom.value.input) {
             onMouseMode('boxSelect');
         }
     };
-
     // 获取选择的图层边界
     const getBoundsInfo = (callback?: (_: VirtualDom) => void) => {
         let minTop = Infinity;

@@ -19,6 +19,18 @@ const router = createRouter({
             component: () => import('@/views/oreo-editor/index.vue'),
             children: [],
         },
+        {
+            path: '/test',
+            name: 'test',
+            meta: {
+                title: 'Oreo Editor',
+                icon: 'mdi-alpha-o',
+                keepAlive: false,
+                visible: true,
+            },
+            component: () => import('@/views/test/test.vue'),
+            children: [],
+        },
     ],
 });
 

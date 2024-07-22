@@ -109,7 +109,6 @@ export const virtualGroup: VirtualDom = {
     id: 0,
     name: 'virtualGroup',
     groupId: 0,
-    virtualGroup: true, // 虚拟组 如果是虚拟组
     icon: 'mdi-group', // 统一用Vuetify mdi-xxxx这套
     type: 0, // 组合
     active: true,
@@ -123,7 +122,6 @@ export const virtualGroup: VirtualDom = {
 export interface VirtualDom {
     id: number;
     groupId: number; // 所属组合ID
-    virtualGroup?: boolean; // 虚拟组 如果是虚拟组
     name: string;
     icon: string; // 统一用Vuetify mdi-xxxx这套
     label?: string; // 展示文本 或者title用

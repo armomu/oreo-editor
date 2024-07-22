@@ -149,7 +149,6 @@ const disableDrag = computed(() => {
     return !props.data.locked && !props.data.input;
 });
 const disableResize = computed(() => {
-    console.log(props.disable, '=========================');
     // 禁用宽高调整
     if (props.disable) return true;
     if (props.data.type === VirtualDomType.Group || props.data.virtualGroup) return true;

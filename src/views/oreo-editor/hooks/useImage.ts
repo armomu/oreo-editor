@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue';
+import { ref, shallowRef, type Ref } from 'vue';
 import { cloneDeep } from 'lodash';
 import { beaseDom, type VirtualDom } from './enumTypes';
 import type { OreoEvent } from './enumTypes';
@@ -8,7 +8,7 @@ export const useImage = (
     curDom: Ref<VirtualDom | undefined>,
     oreoEvent: OreoEvent
 ) => {
-    const imageFileRef = ref<any>();
+    const imageFileRef = shallowRef<any>();
 
     const onBottomToolsImage = () => {
         oreoEvent.cancelActived();

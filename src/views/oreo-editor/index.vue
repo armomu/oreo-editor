@@ -18,9 +18,9 @@
                 class="work-area"
                 id="workArea"
                 @contextmenu.prevent="() => {}"
-                @pointerdown.stop="oreoApp.onPointerDown"
-                @pointermove.stop="oreoApp.onPointerMove"
-                @pointerup.stop="oreoApp.onPointerUp"
+                @pointerdown="oreoApp.onPointerDown"
+                @pointermove="oreoApp.onPointerMove"
+                @pointerup="oreoApp.onPointerUp"
                 @scroll="oreoApp.onWorkAreaScroll"
                 :class="{
                     cursorText: oreoApp.mouseMode.text,
@@ -69,11 +69,7 @@
                         :actions="oreoApp.meneActions"
                     />
                 </div>
-                <div
-                    v-if="oreoApp.boxSelectState.visible"
-                    class="boxSelectHelper"
-                    :style="oreoApp.boxSelectState"
-                ></div>
+                <div class="boxSelectHelper" :style="oreoApp.rectangleStyle.value"></div>
             </div>
             <BottomToolsBar
                 :data="oreoApp.mouseMode"
@@ -154,6 +150,6 @@ import BottomToolsBar from './widgets/BottomToolsBar.vue';
 // @ts-ignore
 import JsonViewer from 'vue-json-viewer';
 
-import useOreoApp from './hooks/useOreoApp';
+import useOreoApp from './hooks/oreoApp';
 const oreoApp = useOreoApp();
 </script>

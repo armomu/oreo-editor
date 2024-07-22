@@ -1,4 +1,4 @@
-import { reactive, type Ref } from 'vue';
+import { reactive, computed, type Ref } from 'vue';
 import { cloneDeep } from 'lodash';
 import { virtualGroup, type OreoEvent, type VirtualDom } from './enumTypes';
 
@@ -8,70 +8,65 @@ export const useBoxSelect = (
     selectedList: Ref<VirtualDom[]>,
     oreoEvent: OreoEvent
 ) => {
-    // 框选框视图状态
+    // 框选框视图状态 相对于框选的父级
     const boxSelectState = reactive({
         visible: false,
-        width: '',
-        height: '',
-        top: '',
-        left: '',
+        startX: 0,
+        startY: 0,
+        endX: 0,
+        endY: 0,
     });
-    // // 记录鼠标移动数据
-    // const mouseState = reactive({
-    //     draggableActive: false, // 可操作图层
-    //     down: false,
-    //     startX: 0,
-    //     startY: 0,
-    //     layerX: 0,
-    //     layerY: 0,
-    //     endX: 0,
-    //     endY: 0,
-    //     offsetX: 0,
-    //     offsetY: 0,
-    // });
-    let startX = 0;
-    let startY = 0;
+
+    const rectangleStyle = computed(() => {
+        const { startX, startY, endX, endY } = boxSelectState;
+        const left = Math.min(startX, endX) + 'px';
+        const top = Math.min(startY, endY) + 'px';
+        const width = Math.abs(endX - startX) + 'px';
+        const height = Math.abs(endY - startY) + 'px';
+        return {
+            left,
+            top,
+            width,
+            height,
+            display: boxSelectState.visible ? 'block' : 'none',
+        };
+    });
+
     let mouseDown = false;
+    let divRectScrollTop = 0;
+    let divRectLeft = 0;
+    let clientX = 0;
+    let clientY = 0;
+    let clientEndX = 0;
+    let clientEndY = 0;
     const boxSelectWorkEventDown = (is: boolean, className: string, e: PointerEvent) => {
-        if (!is) return;
-        // 设置键菜单位置信息
-        if (className.includes('work_content') || className.includes('work-area')) {
-            startX = e.clientX + 0;
-            startY = e.clientY + 0;
-            boxSelectState.left = startX + 'px';
-            boxSelectState.top = startY + 'px';
-            mouseDown = true;
-        }
+        if (!is || !className.includes('work-area')) return;
+        e.preventDefault();
+        mouseDown = true;
+        // @ts-ignore
+        const divRect = e.target.getBoundingClientRect() as DOMRect;
+
+        // @ts-ignore
+        divRectScrollTop = e.target.scrollTop;
+        divRectLeft = divRect.left;
+        console.log(divRect, divRectScrollTop);
+        boxSelectState.startX = e.clientX - divRectLeft;
+        boxSelectState.startY = e.clientY + divRectScrollTop;
+        clientX = e.clientX;
+        clientY = e.clientY;
     };
     const boxSelectWorkEventMove = (is: boolean, e: PointerEvent) => {
-        // mouseState.endX = e.clientX;
-        // mouseState.endY = e.clientY;
-        // if (mouseState.draggableActive) {
-        //     if (e.clientX < mouseState.startX) {
-        //         mouseState.offsetX = -mouseState.startX - e.clientX;
-        //     } else {
-        //         mouseState.offsetX = e.clientX - mouseState.startX;
-        //     }
-        //     if (e.clientY < mouseState.startY) {
-        //         mouseState.offsetY = -mouseState.startY - e.clientY;
-        //     } else {
-        //         mouseState.offsetY = e.clientY - mouseState.startY;
-        //     }
-        // }
         if (!is || !mouseDown) return;
+        e.preventDefault();
         // 画框选框
         boxSelectState.visible = true;
-        boxSelectState.width = Math.abs(e.clientX - startX) + 'px';
-        boxSelectState.height = Math.abs(e.clientY - startY) + 'px';
-        if (e.clientX < startX) {
-            boxSelectState.left = e.clientX + 'px';
-        }
-        if (e.clientY < startY) {
-            boxSelectState.top = e.clientY + 'px';
-        }
+        boxSelectState.endX = e.clientX - divRectLeft;
+        boxSelectState.endY = e.clientY + divRectScrollTop;
     };
-    const boxSelectWorkEventUp = (is: boolean) => {
+    const boxSelectWorkEventUp = (is: boolean, e: PointerEvent) => {
         if (!is) return;
+        clientEndX = e.clientX;
+        clientEndY = e.clientY;
         mouseDown = false;
         boxSelectState.visible = false;
         checkSelectWrap();
@@ -80,16 +75,17 @@ export const useBoxSelect = (
     // 查询有没有对象被选中
     // 如果有选中图层会包含在selectedList数组中
     const checkSelectWrap = () => {
-        if (!boxSelectState.width || parseFloat(boxSelectState.width) < 5) {
-            // console.log('没有进入 ========= 查询有没有对象被选中');
+        if (parseFloat(rectangleStyle.value.width) < 5) {
+            console.log('不查询');
             return;
         }
+        // boxSelectState.visible = true;
         // 获取所有对象集合
         const doms = document.getElementsByClassName('vdr');
-        const left = parseFloat(boxSelectState.left);
-        const top = parseFloat(boxSelectState.top);
-        const width = parseFloat(boxSelectState.width);
-        const height = parseFloat(boxSelectState.height);
+        const left = Math.min(clientX, clientEndX);
+        const top = Math.min(clientY, clientEndY);
+        const width = Math.abs(clientEndX - clientX);
+        const height = Math.abs(clientEndY - clientY);
 
         // 所有包含在框选内的图层、组合的ID，不包含虚拟组合
         const uids: number[] = [];
@@ -129,11 +125,6 @@ export const useBoxSelect = (
             curDom.value = obj;
             appDom.value.push(curDom.value);
         }
-        // 取消框选的状态
-        boxSelectState.height = '';
-        boxSelectState.width = '';
-        boxSelectState.top = '';
-        boxSelectState.left = '';
     };
 
     return {
@@ -141,5 +132,6 @@ export const useBoxSelect = (
         boxSelectWorkEventMove,
         boxSelectWorkEventUp,
         boxSelectState,
+        rectangleStyle,
     };
 };

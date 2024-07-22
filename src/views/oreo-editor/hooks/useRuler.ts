@@ -1,9 +1,9 @@
 import { Application, Color, Graphics, Text } from 'pixi.js';
-import { onMounted, ref } from 'vue';
+import { onMounted, shallowRef } from 'vue';
 
 export const useRuler = () => {
-    const topRulerDom = ref();
-    const leftRulerDom = ref();
+    const topRulerDom = shallowRef();
+    const leftRulerDom = shallowRef();
 
     function initTop() {
         const topDom = document.getElementById('oreoEditor') as HTMLDivElement;
@@ -37,7 +37,6 @@ export const useRuler = () => {
             graphics.endFill();
         }
         pixiApp.stage.addChild(graphics);
-
         topRulerDom.value = pixiApp.view;
         initLeft();
     }
@@ -82,7 +81,7 @@ export const useRuler = () => {
         leftRulerDom.value = pixiApp.view;
     }
 
-    const workAreaDomRef = ref<HTMLDivElement>();
+    const workAreaDomRef = shallowRef<HTMLDivElement>();
     const onWorkAreaScroll = () => {
         // const leftRulerDom = leftRulerDom.value as HTMLDivElement;
         leftRulerDom.value.style.top = `-${workAreaDomRef.value?.scrollTop}px`;

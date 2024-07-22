@@ -106,12 +106,6 @@
             }
         }
     }
-    .boxSelectHelper {
-        position: fixed;
-        z-index: 999;
-        background: rgba(104, 104, 249, 0.2);
-        border: 1px solid rgb(104, 104, 249);
-    }
     .bottom-tools {
         position: absolute;
         left: 50%;
@@ -147,6 +141,12 @@
         height: 100vh;
         overflow: auto;
         padding: 20px 20px;
+        .boxSelectHelper {
+            position: absolute;
+            z-index: 999;
+            background: rgba(104, 104, 249, 0.2);
+            border: 1px solid rgb(104, 104, 249);
+        }
         textarea {
             resize: none;
             overflow: hidden;
@@ -167,7 +167,17 @@
             top: 80px;
             height: 1080px;
             background: #ffffff;
+            pointer-events: none;
+            .testhelper {
+                position: absolute;
+                z-index: 999;
+                background: rgba(104, 104, 249, 0.2);
+                border: 1px solid rgb(104, 104, 249);
+            }
             // scale: 0.8;
+            div {
+                pointer-events: fill;
+            }
         }
 
         .ref-line {
@@ -202,7 +212,7 @@
                     left: 0;
                     top: 0;
                     z-index: 1;
-                    border: 1px dashed rgb(86, 86, 245);
+                    border: 1px solid rgb(86, 86, 245);
                 }
             }
             &.selected {
@@ -228,6 +238,70 @@
             .mdi {
                 z-index: -1;
             }
+            & .handle {
+                box-sizing: border-box;
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                background: #ffffff;
+                border: 0.5px solid rgb(86, 86, 245);
+                box-shadow: 0 0 2px #bbb;
+                border-radius: 4px;
+
+                &.handle-tl {
+                    top: -5px;
+                    left: -5px;
+                    cursor: nw-resize;
+                }
+
+                &.handle-tr {
+                    top: -5px;
+                    right: -5px;
+                    cursor: ne-resize;
+                }
+
+                &.handle-ml {
+                    top: 2%  !important;
+                    height: 96% !important;
+                    opacity: 0;
+                    cursor: w-resize;
+                }
+
+                &.handle-mr {
+                    top: 2%  !important;
+                    height: 96% !important;
+                    opacity: 0;
+                    right: -5px;
+                    cursor: e-resize;
+                }
+
+                &.handle-bl {
+                    bottom: -5px;
+                    left: -5px;
+                    cursor: sw-resize;
+                }
+
+                &.handle-bm {
+                    bottom: -5px;
+                    width: 98% !important;
+                    opacity: 0;
+                    left: 1% !important;
+                    cursor: s-resize;
+                }
+                &.handle-tm {
+                    top: -5px;
+                    width: 98% !important;
+                    opacity: 0;
+                    left: 1% !important;
+                    cursor: n-resize;
+                }
+
+                &.handle-br {
+                    bottom: -5px;
+                    right: -5px;
+                    cursor: se-resize;
+                }
+            }
 
         }
         .virtualGroup {
@@ -238,69 +312,6 @@
         .group {
             .handle  {
                 display: none !important;
-            }
-        }
-        .handle {
-            box-sizing: border-box;
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: #ffffff;
-            border: 0.5px solid rgb(86, 86, 245);
-            box-shadow: 0 0 2px #bbb;
-
-            &.handle-tl {
-                top: -5px;
-                left: -5px;
-                cursor: nw-resize;
-            }
-
-            &.handle-tr {
-                top: -5px;
-                right: -5px;
-                cursor: ne-resize;
-            }
-
-            &.handle-ml {
-                top: 2%  !important;
-                height: 96% !important;
-                opacity: 0;
-                cursor: w-resize;
-            }
-
-            &.handle-mr {
-                top: 2%  !important;
-                height: 96% !important;
-                opacity: 0;
-                right: -5px;
-                cursor: e-resize;
-            }
-
-            &.handle-bl {
-                bottom: -5px;
-                left: -5px;
-                cursor: sw-resize;
-            }
-
-            &.handle-bm {
-                bottom: -5px;
-                width: 98% !important;
-                opacity: 0;
-                left: 1% !important;
-                cursor: s-resize;
-            }
-            &.handle-tm {
-                top: -5px;
-                width: 98% !important;
-                opacity: 0;
-                left: 1% !important;
-                cursor: n-resize;
-            }
-
-            &.handle-br {
-                bottom: -5px;
-                right: -5px;
-                cursor: se-resize;
             }
         }
 
