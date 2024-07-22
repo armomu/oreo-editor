@@ -71,7 +71,7 @@ const OreoApp = () => {
                 console.log('当前点击是菜单子项目');
                 return;
             }
-            deleteVirtualGroup();
+            cancelActived();
         }
         boxSelectEvent.boxSelectWorkEventDown(mouseMode.boxSelect, className, e);
         rulerBarEvent.rulerWorkEventDown(mouseMode.hand, e);
@@ -238,9 +238,7 @@ const OreoApp = () => {
                 }
             }
         }
-
         findChildren(appDom.value, id);
-
         return result;
     }
 

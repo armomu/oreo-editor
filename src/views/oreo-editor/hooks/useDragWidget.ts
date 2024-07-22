@@ -20,10 +20,14 @@ export const useDragWidget = (
     const onDrop = (e: DragEvent) => {
         e.preventDefault();
         if (!dragingDom) return;
+
+        // @ts-ignore
+        const divRect = e.target.getBoundingClientRect() as DOMRect;
+
         oreoEvent.cancelActived();
         const { width, height } = dragingDom.styles;
-        dragingDom.styles.top = e.offsetY - height / 2;
-        dragingDom.styles.left = e.offsetX - width / 2;
+        dragingDom.styles.top = e.clientY + e.target.scrollTop - 100 - height / 2;
+        dragingDom.styles.left = e.clientX + e.target.scrollLeft - divRect.left - 100 - width / 2;
         dragingDom.id = new Date().getTime();
         curDom.value = dragingDom;
         appDom.value.push(curDom.value);

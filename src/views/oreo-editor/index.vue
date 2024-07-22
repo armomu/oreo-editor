@@ -22,6 +22,8 @@
                 @pointermove="oreoApp.onPointerMove"
                 @pointerup="oreoApp.onPointerUp"
                 @scroll="oreoApp.onWorkAreaScroll"
+                @dragover="oreoApp.onDragover"
+                @drop="oreoApp.onDrop"
                 :class="{
                     cursorText: oreoApp.mouseMode.text,
                     cursorCross: oreoApp.mouseMode.draRact,
@@ -32,8 +34,6 @@
                 <div
                     class="work_content"
                     id="work_content"
-                    @dragover="oreoApp.onDragover"
-                    @drop="oreoApp.onDrop"
                     :style="{
                         scale: oreoApp.scale.value,
                     }"

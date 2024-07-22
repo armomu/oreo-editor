@@ -45,10 +45,10 @@ export const useBoxSelect = (
         mouseDown = true;
         // @ts-ignore
         const divRect = e.target.getBoundingClientRect() as DOMRect;
-
         // @ts-ignore
         divRectScrollTop = e.target.scrollTop;
-        divRectLeft = divRect.left;
+        // @ts-ignore
+        divRectLeft = divRect.left - e.target.scrollLeft;
         console.log(divRect, divRectScrollTop);
         boxSelectState.startX = e.clientX - divRectLeft;
         boxSelectState.startY = e.clientY + divRectScrollTop;
