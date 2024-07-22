@@ -6,8 +6,8 @@ import vuetify from 'vite-plugin-vuetify';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: '/',
-    // base: '/vue-material-admin',
+    // base: '/',
+    base: '/oreo-editor',
     plugins: [
         vue(),
         // vueJsx(), 都用Vue还用什么JSX

@@ -76,7 +76,7 @@ export const beaseDom: VirtualDom[] = [
         fontStyle: {
             color: '#333333',
             fontSize: 12,
-            lineHeight: 15,
+            lineHeight: 1,
             fontFamily: 'alishuhei',
             fontWeight: 'normal',
             textAlign: 'left',
@@ -104,6 +104,7 @@ export const beaseDom: VirtualDom[] = [
         styles: { ...beaseDomStyle, imgFit: 'contain', background: '#ffffff' },
     },
 ];
+
 export const virtualGroup: VirtualDom = {
     id: 0,
     name: 'virtualGroup',
@@ -215,13 +216,7 @@ export interface MouseMode {
     hand: boolean;
     image: boolean;
 }
-interface BoxSelectState {
-    visible: boolean;
-    width: string;
-    height: string;
-    top: string;
-    left: string;
-}
+
 export interface DragOffset {
     offsetX: number;
     offsetY: number;
