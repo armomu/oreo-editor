@@ -120,7 +120,13 @@ export const useRuler = () => {
         start = false;
     };
 
-    onMounted(initTop);
+    onMounted(() => {
+        initTop();
+        if (workAreaDomRef.value) {
+            workAreaDomRef.value.scrollLeft = 2000;
+            workAreaDomRef.value.scrollTop = 2000;
+        }
+    });
 
     return {
         onWorkAreaScroll,

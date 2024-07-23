@@ -171,8 +171,7 @@
         .work_content {
             width: 1200px;
             position: relative;
-            left: 80px;
-            top: 80px;
+            margin: 2000px;
             height: 1080px;
             background: #ffffff;
             pointer-events: none;
@@ -182,7 +181,6 @@
                 background: rgba(104, 104, 249, 0.2);
                 border: 1px solid rgb(104, 104, 249);
             }
-            // scale: 0.8;
             div {
                 pointer-events: fill;
             }
