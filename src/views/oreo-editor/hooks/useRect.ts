@@ -26,8 +26,8 @@ export const useRect = (oreoEvent: OreoEvent) => {
         const info = oreoEvent.getPointerWrapBoundsInfo();
         oreoEvent.curDom.value.styles.width = info.width;
         oreoEvent.curDom.value.styles.height = info.height;
-        oreoEvent.curDom.value.styles.top = info.top - 100;
-        oreoEvent.curDom.value.styles.left = info.left - 100;
+        oreoEvent.curDom.value.styles.top = info.top - 2020;
+        oreoEvent.curDom.value.styles.left = info.left - 2020;
     };
     const rectWorkEventUp = () => {
         oreoEvent.onMouseMode('boxSelect');

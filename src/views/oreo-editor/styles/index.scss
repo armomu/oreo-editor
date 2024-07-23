@@ -132,9 +132,10 @@
 
     .left_ruler {
         position: absolute;
-        right: -22px;
+        right: -21px;
         top: 0;
         border-right: 1px solid #efefef;
+        border-left: 1px solid #efefef;
         background-color: #ffffff;
     }
     .work-area {
@@ -143,6 +144,7 @@
         height: 100vh;
         overflow: auto;
         padding: 20px 20px;
+        background: #999;
         .boxSelectHelper {
             position: absolute;
             z-index: 999;
