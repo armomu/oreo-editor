@@ -1,5 +1,5 @@
 <template>
-    <svg class="grid" width="100%" height="1000%" xmlns="http://www.w3.org/2000/svg">
+    <svg class="grid" width="10000" height="10000" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <pattern
                 id="smallGrid"

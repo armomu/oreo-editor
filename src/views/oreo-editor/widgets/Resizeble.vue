@@ -144,15 +144,15 @@ const isDiv = computed(() => {
 
 const disableDrag = computed(() => {
     // 禁用宽高调整
-    if (props.disable) return true;
-    if (props.data.groupId) return true;
+    if (props.disable) return false;
+    if (props.data.groupId) return false;
     return !props.data.locked && !props.data.input;
 });
 const disableResize = computed(() => {
     // 禁用宽高调整
-    if (props.disable) return true;
-    if (props.data.type === VirtualDomType.Group || props.data.virtualGroup) return true;
-    if (props.data.groupId) return true;
+    if (props.disable) return false;
+    if (props.data.type === VirtualDomType.Group || props.data.virtualGroup) return false;
+    if (props.data.groupId) return false;
     return !props.data.locked && !props.data.input;
 });
 
@@ -167,7 +167,6 @@ const funStop = (e: BoundsInfo) => {
     emit('update:top', e.top);
     emit('update:left', e.left);
     emit('stop', e);
-    console.log('更新了BoundsInfo');
 };
 
 const getRefLineParams = (params: any) => {
@@ -183,9 +182,16 @@ const getRefLineParams = (params: any) => {
     });
     emit('snapLine', [vs || [], hl || []]);
 };
+
+let __timer: any = null;
 const onActivated = () => {
+    if (__timer) return;
     emit('update:active', true);
     emit('activated', props.data);
+    __timer = setTimeout(() => {
+        clearTimeout(__timer);
+        __timer = null;
+    }, 50);
 };
 const onDeactivated = () => {
     emit('update:active', false);

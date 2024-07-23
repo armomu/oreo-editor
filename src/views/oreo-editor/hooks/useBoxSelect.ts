@@ -25,6 +25,7 @@ export const useBoxSelect = (oreoEvent: OreoEvent) => {
         e.preventDefault();
         boxSelectState.visible = false;
         mouseDown = true;
+        console.log('=================');
     };
     const boxSelectWorkEventMove = (is: boolean, e: PointerEvent) => {
         if (!is || !mouseDown) return;
@@ -70,7 +71,6 @@ export const useBoxSelect = (oreoEvent: OreoEvent) => {
                 oreoEvent.selectedList.value.push(oreoEvent.appDom.value[i]);
             }
         }
-        console.log(oreoEvent.selectedList.value);
         // 选中多个对象后 把它们放入一个虚拟组合里
         let _id_ = 0;
         if (oreoEvent.selectedList.value.length > 1) _id_ = new Date().getTime(); // 增加虚拟组合的ID
@@ -80,14 +80,13 @@ export const useBoxSelect = (oreoEvent: OreoEvent) => {
                 item.groupId = _id_;
             });
             const obj = cloneDeep(virtualGroup);
-            obj.id = new Date().getTime();
+            obj.id = _id_;
             obj.styles.width = boundsInfo.width;
             obj.styles.height = boundsInfo.height;
             obj.styles.top = boundsInfo.top;
             obj.styles.left = boundsInfo.left;
             oreoEvent.curDom.value = obj;
             oreoEvent.appDom.value.push(oreoEvent.curDom.value);
-            console.log('jiarule');
         }
     };
 

@@ -127,6 +127,7 @@
         left: 220px;
         top: 0;
         border-bottom: 1px solid #efefef;
+        background-color: #ffffff;
     }
 
     .left_ruler {
@@ -134,6 +135,7 @@
         right: -22px;
         top: 0;
         border-right: 1px solid #efefef;
+        background-color: #ffffff;
     }
     .work-area {
         width: calc(100vw - 466px);
@@ -167,7 +169,7 @@
             }
         }
         .work_content {
-            width: 1920px;
+            width: 1200px;
             position: relative;
             left: 80px;
             top: 80px;

@@ -7,6 +7,7 @@ export const useDragWidget = (oreoEvent: OreoEvent) => {
     //
     const onDraging = (e: VirtualDom) => {
         dragingDom = e;
+        // console.log(e);
     };
 
     const onDragover = (e: DragEvent) => {
@@ -16,7 +17,6 @@ export const useDragWidget = (oreoEvent: OreoEvent) => {
     const onDrop = (e: DragEvent) => {
         e.preventDefault();
         if (!dragingDom) return;
-
         // @ts-ignore
         const divRect = e.target.getBoundingClientRect() as DOMRect;
         oreoEvent.cancelActived();

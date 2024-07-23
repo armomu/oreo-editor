@@ -31,13 +31,7 @@
                 }"
             >
                 <Grid />
-                <div
-                    class="work_content"
-                    id="work_content"
-                    :style="{
-                        scale: oreoApp.scale.value,
-                    }"
-                >
+                <div class="work_content" id="work_content" :style="{ scale: oreoApp.scale.value }">
                     <Resizeble
                         v-for="(item, key) in oreoApp.appDom.value"
                         :key="key"
@@ -88,11 +82,7 @@
                     }
                 "
             />
-            <Customize
-                :data="oreoApp.curDom.value"
-                :align="oreoApp.align"
-                @add-widget="oreoApp.onShowChartDialog"
-            />
+            <Customize :data="oreoApp.curDom.value" :align="oreoApp.align" />
         </div>
         <a-drawer
             v-model:visible="oreoApp.jsonViewerVisible.value"
@@ -124,16 +114,6 @@
                     @click="oreoApp.onAddIcon(item)"
                 />
             </div>
-        </a-drawer>
-        <a-drawer
-            v-model:visible="oreoApp.chartState.value.dialogVisible"
-            placement="bottom"
-            height="70vh"
-            :footer="false"
-            hide-cancel
-            title="Components"
-        >
-            <a-button @click="oreoApp.onAddChart">Apex Area Chart</a-button>
         </a-drawer>
     </div>
 </template>

@@ -218,9 +218,6 @@
                         <a-input-number v-model="props.data.styles.shadowSpread" size="mini" />
                     </a-col>
                 </a-row>
-                <a-button @click="onAddWidget" size="small" type="outline" long class="mt-3"
-                    >Add Components</a-button
-                >
             </a-collapse-item>
             <!-- 填充样式结束 -->
 
@@ -414,10 +411,6 @@ const showText = computed(() => {
     if (props.data && props.data.type === VirtualDomType.Text) return true;
     return false;
 });
-
-const onAddWidget = () => {
-    emit('add-widget');
-};
 
 const onImage = () => {
     emit('image');

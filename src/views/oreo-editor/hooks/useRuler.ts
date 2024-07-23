@@ -82,7 +82,7 @@ export const useRuler = () => {
     }
 
     const workAreaDomRef = shallowRef<HTMLDivElement>();
-    const onWorkAreaScroll = () => {
+    const onWorkAreaScroll = (e: Event) => {
         // const leftRulerDom = leftRulerDom.value as HTMLDivElement;
         leftRulerDom.value.style.top = `-${workAreaDomRef.value?.scrollTop}px`;
         const left = parseFloat(workAreaDomRef.value?.scrollLeft + '');

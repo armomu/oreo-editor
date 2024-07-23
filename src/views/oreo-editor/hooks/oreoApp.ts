@@ -2,7 +2,6 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { VirtualDomType, beaseDom } from './enumTypes';
 import type { VirtualDom, BoundsInfo, PointerEventState } from './enumTypes';
 
-import { useAddChart } from './useAddChart';
 import { useAlign } from './useAlign';
 import { useDragWidget } from './useDragWidget';
 import { useIcon } from './useIcon';
@@ -28,6 +27,12 @@ const OreoApp = () => {
     });
     // 当前视图放大的倍数
     const scale = ref(1);
+
+    //
+    const workDomOffset = reactive({
+        contentMargin: 2000,
+        workPadding: 20,
+    });
 
     // 是否禁用所有可操作的图层
     const disableDraResize = computed(() => {
@@ -66,7 +71,6 @@ const OreoApp = () => {
                 className.includes('handle')
             ) {
                 console.log('当前点击是拖拽框');
-                // mouseState.draggableActive = true;
                 // 找出当前ID所有子对象 包括组合子组合中的对象
                 selectedList.value = findUids(e_t_did);
                 return;
@@ -77,9 +81,10 @@ const OreoApp = () => {
             }
             cancelActived();
         }
+        console.log('================222');
         boxSelectEvent.boxSelectWorkEventDown(mouseMode.boxSelect, className, e);
-        rulerBarEvent.rulerWorkEventDown(mouseMode.hand, e);
         textInputEvent.draggableTextClick(mouseMode.boxSelect, className, e_t_did);
+        rulerBarEvent.rulerWorkEventDown(mouseMode.hand, e);
         textInputEvent.textWorkEventDown(mouseMode.text, className, e);
         rectEvent.rectWorkEventDown(mouseMode.draRact, e);
     };
@@ -305,13 +310,8 @@ const OreoApp = () => {
 
     function findUids(id: number) {
         const result: VirtualDom[] = [];
-        // let _curDom: VirtualDom | undefined = undefined
         function findChildren(items: VirtualDom[], parentId: number) {
             for (let i = 0; i < items.length; i++) {
-                // if (setCurDom && id === items[i].id) {
-                //     curDom.value = items[i];
-                //     curDom.value.active = true;
-                // }
                 const item = items[i];
                 if (item.groupId === parentId) {
                     result.push(item);
@@ -410,7 +410,6 @@ const OreoApp = () => {
     const textInputEvent = useTextInput(appDom, curDom, oreoEvent);
     const align = useAlign(appDom);
     const snapLineEvent = useSnapLine();
-    const chartEvent = useAddChart(appDom, curDom);
     const imageEvent = useImage(appDom, curDom, oreoEvent);
     const rectEvent = useRect(oreoEvent);
     const boxSelectEvent = useBoxSelect(oreoEvent);
@@ -434,7 +433,6 @@ const OreoApp = () => {
         ...mouseMenuEvent,
         ...iconEvent,
         ...textInputEvent,
-        ...chartEvent,
         ...imageEvent,
         ...rectEvent,
         ...boxSelectEvent,
