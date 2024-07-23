@@ -71,7 +71,7 @@
                 </div>
                 <div class="boxSelectHelper" :style="oreoApp.rectangleStyle.value"></div>
             </div>
-            <BottomToolsBar
+            <BottomTools
                 :data="oreoApp.mouseMode"
                 :imageFileRef="oreoApp.imageFileRef"
                 v-model:scale="oreoApp.scale.value"
@@ -146,7 +146,7 @@ import LayerPage from './widgets/LayerPage.vue';
 import Resizeble from './widgets/Resizeble.vue';
 import MouseMenu from './widgets/MouseMenu.vue';
 import SnapLine from './widgets/SnapLine.vue';
-import BottomToolsBar from './widgets/BottomToolsBar.vue';
+import BottomTools from './widgets/BottomTools.vue';
 // @ts-ignore
 import JsonViewer from 'vue-json-viewer';
 

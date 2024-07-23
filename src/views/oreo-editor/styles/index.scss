@@ -159,6 +159,12 @@
         }
         &.cursorGrab{
             cursor: grab !important;
+            .vdr {
+                cursor: grab !important;
+                .handle  {
+                    cursor: grab !important;
+                }
+            }
         }
         .work_content {
             width: 1920px;

@@ -1,6 +1,6 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { VirtualDomType, beaseDom } from './enumTypes';
-import type { VirtualDom, ResizeOffset } from './enumTypes';
+import type { VirtualDom, BoundsInfo, PointerEventState } from './enumTypes';
 
 import { useAddChart } from './useAddChart';
 import { useAlign } from './useAlign';
@@ -57,9 +57,14 @@ const OreoApp = () => {
         const e_t_did = parseInt(e.target?.getAttribute('uid') + '');
         console.log(className, 'onPointerDown');
         // 每个模式下都要自己管理自己的事件冒泡 e.preventDefault();
+        setPointerEventState(e, 'down');
         if (mouseMode.boxSelect) {
             // 当点击的对象是拖拽框
-            if (className.includes('draggable') || className.includes('dr_text')) {
+            if (
+                className.includes('draggable') ||
+                className.includes('dr_text') ||
+                className.includes('handle')
+            ) {
                 console.log('当前点击是拖拽框');
                 // mouseState.draggableActive = true;
                 // 找出当前ID所有子对象 包括组合子组合中的对象
@@ -68,7 +73,6 @@ const OreoApp = () => {
             }
             // 点击的对象是右键菜单项目不做操作
             if (className.includes('contextmenu_item')) {
-                console.log('当前点击是菜单子项目');
                 return;
             }
             cancelActived();
@@ -81,6 +85,8 @@ const OreoApp = () => {
     };
 
     const onPointerMove = (e: PointerEvent) => {
+        setPointerEventState(e, 'move');
+        if (!pointerEventState.mouseDown) return;
         boxSelectEvent.boxSelectWorkEventMove(mouseMode.boxSelect, e);
         rectEvent.rectWorkEventMove(mouseMode.draRact, e);
         imageEvent.imageWorkEventMove(mouseMode.image, e);
@@ -88,12 +94,87 @@ const OreoApp = () => {
     };
 
     const onPointerUp = (e: PointerEvent) => {
+        setPointerEventState(e, 'up');
         boxSelectEvent.boxSelectWorkEventUp(mouseMode.boxSelect, e);
+        rectEvent.rectWorkEventUp();
         rulerBarEvent.rulerWorkEvenEnd(mouseMode.hand);
-        if (curDom.value && !curDom.value.input) {
-            onMouseMode('boxSelect');
+    };
+    const pointerEventState = reactive<PointerEventState>({
+        mouseDown: false,
+        targetClientTop: 0, // workArea DIV距离屏幕的距离
+        targetClientLeft: 0, // workArea DIV距离屏幕的距离
+        clientStartX: 0, // 基于屏幕 减去滚动条距离左边的距离
+        clientStartY: 0, // 基于屏幕 减去滚动条距离顶部的距离
+        clientEndX: 0, // 结束时同上
+        clientEndY: 0, // 结束时同上
+        startX: 0, // 等于clientX
+        startY: 0, // 等于clientY
+        endX: 0, // 等于clientX 结束
+        endY: 0, // 等于clientY
+    });
+    const setPointerEventState = (e: PointerEvent, type: 'down' | 'move' | 'up') => {
+        if (type === 'down') {
+            // @ts-ignore
+            const targetRect = e.target.getBoundingClientRect() as DOMRect;
+            if (targetRect) {
+                pointerEventState.mouseDown = true;
+                // @ts-ignore
+                pointerEventState.targetClientTop = targetRect.top - e.target.scrollTop;
+                // @ts-ignore
+                pointerEventState.targetClientLeft = targetRect.left - e.target.scrollLeft;
+                pointerEventState.clientStartX = e.clientX - pointerEventState.targetClientLeft;
+                pointerEventState.clientStartY = e.clientY - pointerEventState.targetClientTop;
+
+                pointerEventState.startX = e.clientX;
+                pointerEventState.startY = e.clientY;
+            }
+        }
+        if (type === 'move' && pointerEventState.mouseDown) {
+            pointerEventState.clientEndX = e.clientX - pointerEventState.targetClientLeft;
+            pointerEventState.clientEndY = e.clientY - pointerEventState.targetClientTop;
+            pointerEventState.endX = e.clientX;
+            pointerEventState.endY = e.clientY;
+        }
+
+        if (type === 'up' && pointerEventState.mouseDown) {
+            pointerEventState.clientEndX = e.clientX - pointerEventState.targetClientLeft;
+            pointerEventState.clientEndY = e.clientY - pointerEventState.targetClientTop;
+            pointerEventState.endX = e.clientX;
+            pointerEventState.endY = e.clientY;
+            pointerEventState.mouseDown = false;
         }
     };
+    /**
+     * 获取鼠标框选的边界 绝对定位于 work-area div
+     * @param client 获取位于屏幕的框选边界 不传则获取位于屏幕减去滚动条和work-area距离的位置
+     */
+    const getPointerWrapBoundsInfo = (client = false) => {
+        if (client) {
+            const { startX, startY, endX, endY } = pointerEventState;
+            const left = Math.min(startX, endX);
+            const top = Math.min(startY, endY);
+            const width = Math.abs(endX - startX);
+            const height = Math.abs(endY - startY);
+            return {
+                left,
+                top,
+                width,
+                height,
+            };
+        }
+        const { clientStartX, clientStartY, clientEndX, clientEndY } = pointerEventState;
+        const left = Math.min(clientStartX, clientEndX);
+        const top = Math.min(clientStartY, clientEndY);
+        const width = Math.abs(clientEndX - clientStartX);
+        const height = Math.abs(clientEndY - clientStartY);
+        return {
+            left,
+            top,
+            width,
+            height,
+        };
+    };
+
     // 获取选择的图层边界
     const getBoundsInfo = (callback?: (_: VirtualDom) => void) => {
         let minTop = Infinity;
@@ -209,7 +290,7 @@ const OreoApp = () => {
     };
 
     // 可操作图层宽高发生了变化
-    const onResize = (val: ResizeOffset) => {
+    const onResize = (val: BoundsInfo) => {
         // BUG 为什么解除组合圆形的宽会变大
         if (curDom.value && curDom.value.type === VirtualDomType.Circle) {
             curDom.value.styles.radius = parseInt(val.width / 2 + '');
@@ -308,8 +389,14 @@ const OreoApp = () => {
     appDom.value = testJson._rawValue as any;
 
     const oreoEvent = {
+        appDom,
+        widgets,
+        curDom,
+        scale,
         mouseMode,
         selectedList,
+        pointerEventState,
+        getPointerWrapBoundsInfo,
         onMouseMode,
         getBoundsInfo,
         cancelSelect,
@@ -317,7 +404,7 @@ const OreoApp = () => {
         deleteVirtualGroup,
     };
     const rulerBarEvent = useRuler();
-    const dragWidgetEvent = useDragWidget(appDom, curDom, oreoEvent);
+    const dragWidgetEvent = useDragWidget(oreoEvent);
     const mouseMenuEvent = useMouseMenu(appDom, curDom, oreoEvent);
     const iconEvent = useIcon(appDom, curDom);
     const textInputEvent = useTextInput(appDom, curDom, oreoEvent);
@@ -325,14 +412,10 @@ const OreoApp = () => {
     const snapLineEvent = useSnapLine();
     const chartEvent = useAddChart(appDom, curDom);
     const imageEvent = useImage(appDom, curDom, oreoEvent);
-    const rectEvent = useRect(appDom, curDom, oreoEvent);
-    const boxSelectEvent = useBoxSelect(appDom, curDom, selectedList, oreoEvent);
+    const rectEvent = useRect(oreoEvent);
+    const boxSelectEvent = useBoxSelect(oreoEvent);
 
     return {
-        appDom,
-        widgets,
-        curDom,
-        scale,
         onPointerDown,
         onPointerMove,
         onPointerUp,

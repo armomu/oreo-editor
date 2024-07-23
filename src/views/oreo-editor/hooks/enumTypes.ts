@@ -187,7 +187,7 @@ interface Shadow {
     shadowSpread: number; // 文本不可用
     shadowColor: string;
 }
-export interface ResizeOffset {
+export interface BoundsInfo {
     left: number;
     top: number;
     width: number;
@@ -195,15 +195,15 @@ export interface ResizeOffset {
 }
 
 export interface OreoEvent {
+    appDom: Ref<VirtualDom[]>;
+    curDom: Ref<VirtualDom | undefined>;
+    scale: Ref<number>;
     mouseMode: MouseMode;
     selectedList: Ref<VirtualDom[]>;
+    pointerEventState: PointerEventState;
+    getPointerWrapBoundsInfo: (client?: boolean) => BoundsInfo;
     onMouseMode: (name: string) => void;
-    getBoundsInfo: (callback?: (_: VirtualDom) => void) => {
-        top: number;
-        width: number;
-        height: number;
-        left: number;
-    };
+    getBoundsInfo: (callback?: (_: VirtualDom) => void) => BoundsInfo;
     cancelSelect: () => void;
     cancelActived: () => void;
     deleteVirtualGroup: () => void;
@@ -220,4 +220,17 @@ export interface MouseMode {
 export interface DragOffset {
     offsetX: number;
     offsetY: number;
+}
+export interface PointerEventState {
+    mouseDown: boolean;
+    targetClientTop: number;
+    targetClientLeft: number;
+    clientStartX: number;
+    clientStartY: number;
+    clientEndX: number;
+    clientEndY: number;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
 }

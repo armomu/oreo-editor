@@ -1,11 +1,7 @@
 import { h, ref, type Ref } from 'vue';
 import { type OreoEvent, type VirtualDom } from './enumTypes';
 
-export const useDragWidget = (
-    appDom: Ref<VirtualDom[]>,
-    curDom: Ref<VirtualDom | undefined>,
-    oreoEvent: OreoEvent
-) => {
+export const useDragWidget = (oreoEvent: OreoEvent) => {
     // 当前拖动中的节点
     let dragingDom: VirtualDom;
     //
@@ -23,14 +19,15 @@ export const useDragWidget = (
 
         // @ts-ignore
         const divRect = e.target.getBoundingClientRect() as DOMRect;
-
         oreoEvent.cancelActived();
         const { width, height } = dragingDom.styles;
+        // @ts-ignore
         dragingDom.styles.top = e.clientY + e.target.scrollTop - 100 - height / 2;
+        // @ts-ignore
         dragingDom.styles.left = e.clientX + e.target.scrollLeft - divRect.left - 100 - width / 2;
         dragingDom.id = new Date().getTime();
-        curDom.value = dragingDom;
-        appDom.value.push(curDom.value);
+        oreoEvent.curDom.value = dragingDom;
+        oreoEvent.appDom.value.push(oreoEvent.curDom.value);
     };
 
     return {

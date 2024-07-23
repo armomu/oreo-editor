@@ -74,7 +74,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { ResizeOffset, VirtualDom } from '../hooks/enumTypes';
+import type { BoundsInfo, VirtualDom } from '../hooks/enumTypes';
 import { VirtualDomType } from '../hooks/enumTypes';
 // @ts-ignore
 import DragResizeBle from '@/components/DragResizeble/index.vue';
@@ -161,13 +161,13 @@ const lockAspectRatio = computed(() => {
     return arr.includes(props.data.type);
 });
 
-const funStop = (e: ResizeOffset) => {
+const funStop = (e: BoundsInfo) => {
     emit('update:width', e.width);
     emit('update:height', e.height);
     emit('update:top', e.top);
     emit('update:left', e.left);
     emit('stop', e);
-    console.log('更新了ResizeOffset');
+    console.log('更新了BoundsInfo');
 };
 
 const getRefLineParams = (params: any) => {
