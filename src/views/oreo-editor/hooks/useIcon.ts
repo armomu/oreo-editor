@@ -2,26 +2,26 @@ import { ref, type Ref } from 'vue';
 
 import materialIcons from './icon';
 import { cloneDeep } from 'lodash';
-import { VirtualDomType, beaseDom, type VirtualDom } from './enumTypes';
+import { VirtualDomType, beaseDom, type OreoEvent } from './enumTypes';
 
-export const useIcon = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom | undefined>) => {
+export const useIcon = (oreoEvent: OreoEvent) => {
     const iconState = ref({
         dialogVisible: false,
         list: materialIcons,
     });
 
     const onShowIconDialog = () => {
-        const vg = appDom.value.find((item) => item.virtualGroup);
+        const vg = oreoEvent.appDom.value.find((item) => item.virtualGroup);
         // 取消选中
-        for (let i = 0; i < appDom.value.length; i++) {
-            appDom.value[i].selected = false;
-            appDom.value[i].active = false;
-            if (vg && appDom.value[i].groupId === vg.id) {
-                appDom.value[i].groupId = 0;
+        for (let i = 0; i < oreoEvent.appDom.value.length; i++) {
+            oreoEvent.appDom.value[i].selected = false;
+            oreoEvent.appDom.value[i].active = false;
+            if (vg && oreoEvent.appDom.value[i].groupId === vg.id) {
+                oreoEvent.appDom.value[i].groupId = 0;
             }
         }
         // 删除虚拟组合
-        vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
+        vg && oreoEvent.appDom.value.splice(oreoEvent.appDom.value.indexOf(vg), 1);
         iconState.value.dialogVisible = true;
     };
 
@@ -51,8 +51,8 @@ export const useIcon = (appDom: Ref<VirtualDom[]>, curDom: Ref<VirtualDom | unde
             shadowColor: 'rgba(0, 0, 0, 1)',
             decoration: 'none',
         };
-        curDom.value = iconDom;
-        appDom.value.push(iconDom);
+        oreoEvent.curDom.value = iconDom;
+        oreoEvent.appDom.value.push(iconDom);
 
         iconState.value.dialogVisible = false;
     };

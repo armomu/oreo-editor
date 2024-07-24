@@ -2,11 +2,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import type { Ref } from 'vue';
 import { VirtualDomType } from './enumTypes';
 import type { OreoEvent, VirtualDom } from './enumTypes';
-export const useMouseMenu = (
-    appDom: Ref<VirtualDom[]>,
-    curDom: Ref<VirtualDom | undefined>,
-    oreoEvent: OreoEvent
-) => {
+export const useMouseMenu = (oreoEvent: OreoEvent) => {
     const menuState = ref({
         visible: false,
         top: 0,
@@ -18,57 +14,57 @@ export const useMouseMenu = (
     };
     const openMenu = (e: PointerEvent, item: VirtualDom) => {
         e.preventDefault();
-        menuState.value.left = e.layerX;
-        menuState.value.top = e.layerY;
+        menuState.value.left = e.clientX;
+        menuState.value.top = e.clientY;
         menuState.value.visible = true;
         // document.body.addEventListener('click', hideMenu);
         // setTimeout(() => {
         //     // document.body.removeEventListener('click', hideMenu);
         // }, 50);
-        console.log('openMenu====', e);
-        curDom.value = item;
-        curDom.value.active = true;
+        // console.log('openMenu====', e);
+        // oreoEvent.curDom.value = item;
+        // oreoEvent.curDom.value.active = true;
     };
 
     const onMenuVisible = () => {
-        if (!curDom.value) return;
-        if (curDom.value && curDom.value.locked) return;
-        curDom.value.visible = !curDom.value.visible;
+        if (!oreoEvent.curDom.value) return;
+        if (oreoEvent.curDom.value && oreoEvent.curDom.value.locked) return;
+        oreoEvent.curDom.value.visible = !oreoEvent.curDom.value.visible;
     };
 
     const delItem = (dom: VirtualDom) => {
-        const index = appDom.value.findIndex((obj) => obj.id === dom.id);
+        const index = oreoEvent.appDom.value.findIndex((obj) => obj.id === dom.id);
         if (index < 0) return;
-        appDom.value.splice(index, 1);
+        oreoEvent.appDom.value.splice(index, 1);
     };
     const onMenuDelete = () => {
-        if (curDom.value && curDom.value.type === VirtualDomType.Group) {
+        if (oreoEvent.curDom.value && oreoEvent.curDom.value.type === VirtualDomType.Group) {
             const g: VirtualDom[] = [];
-            for (let i = 0; i < appDom.value.length; i++) {
-                if (appDom.value[i].groupId === curDom.value.id) {
-                    g.push(appDom.value[i]);
+            for (let i = 0; i < oreoEvent.appDom.value.length; i++) {
+                if (oreoEvent.appDom.value[i].groupId === oreoEvent.curDom.value.id) {
+                    g.push(oreoEvent.appDom.value[i]);
                 }
             }
             g.forEach((item) => {
                 delItem(item);
             });
         }
-        curDom.value && delItem(curDom.value);
-        // const index = appDom.value.findIndex((obj) => obj.id === curDom.value.id);
+        oreoEvent.curDom.value && delItem(oreoEvent.curDom.value);
+        // const index = oreoEvent.appDom.value.findIndex((obj) => obj.id === oreoEvent.curDom.value.id);
         // if (index < 0) return;
-        // appDom.value.splice(index, 1);
+        // oreoEvent.appDom.value.splice(index, 1);
         // TODO DEL Group
     };
     const onMenuLocked = () => {
-        if (!curDom.value) return;
-        curDom.value.locked = !curDom.value.locked;
+        if (!oreoEvent.curDom.value) return;
+        oreoEvent.curDom.value.locked = !oreoEvent.curDom.value.locked;
     };
     const onMenuGroup = () => {
-        const vg = appDom.value.find((item) => item.virtualGroup);
+        const vg = oreoEvent.appDom.value.find((item) => item.virtualGroup);
         // 取消选中
-        for (let i = 0; i < appDom.value.length; i++) {
-            if (vg && appDom.value[i].groupId === vg.id) {
-                appDom.value[i].selected = false;
+        for (let i = 0; i < oreoEvent.appDom.value.length; i++) {
+            if (vg && oreoEvent.appDom.value[i].groupId === vg.id) {
+                oreoEvent.appDom.value[i].selected = false;
             }
         }
         oreoEvent.getBoundsInfo();
@@ -79,10 +75,10 @@ export const useMouseMenu = (
         }
     };
     const onMenuDisbandGroup = () => {
-        if (curDom.value && curDom.value.type === VirtualDomType.Group) {
-            for (let i = 0; i < appDom.value.length; i++) {
-                if (appDom.value[i].groupId === curDom.value.id) {
-                    appDom.value[i].groupId = 0;
+        if (oreoEvent.curDom.value && oreoEvent.curDom.value.type === VirtualDomType.Group) {
+            for (let i = 0; i < oreoEvent.appDom.value.length; i++) {
+                if (oreoEvent.appDom.value[i].groupId === oreoEvent.curDom.value.id) {
+                    oreoEvent.appDom.value[i].groupId = 0;
                 }
             }
             onMenuDelete();
@@ -90,8 +86,8 @@ export const useMouseMenu = (
     };
 
     function onKeydown(event: KeyboardEvent) {
-        if (!curDom.value) return;
-        if (curDom.value.input) return;
+        if (!oreoEvent.curDom.value) return;
+        if (oreoEvent.curDom.value.input) return;
         if (event.code === 'Backspace' || event.code === 'Delete') {
             onMenuDelete();
         }

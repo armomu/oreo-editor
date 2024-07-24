@@ -20,6 +20,7 @@ import testJson from './test.json';
 const OreoApp = () => {
     // 所有图层
     const appDom = ref<VirtualDom[]>([]);
+    // 已有的示例图层基础组件
     const widgets = ref<VirtualDom[]>([...beaseDom]);
     // 当前选中的图层
     const curDom = ref<VirtualDom | undefined>({
@@ -28,8 +29,8 @@ const OreoApp = () => {
     // 当前视图放大的倍数
     const scale = ref(1.25);
 
-    // 对应 css
-    const workDomOffset = reactive({
+    // 对应 css 还没有做全局管理
+    const workAreaOffset = reactive({
         contentMargin: 2000, //  .work_content margin: 2000px;
         workPadding: 20, // .work-area padding: 20px 20px;
     });
@@ -433,12 +434,12 @@ const OreoApp = () => {
     };
     const rulerBarEvent = useRuler();
     const dragWidgetEvent = useDragWidget(oreoEvent);
-    const mouseMenuEvent = useMouseMenu(appDom, curDom, oreoEvent);
-    const iconEvent = useIcon(appDom, curDom);
-    const textInputEvent = useTextInput(appDom, curDom, oreoEvent);
+    const mouseMenuEvent = useMouseMenu(oreoEvent);
+    const iconEvent = useIcon(oreoEvent);
+    const textInputEvent = useTextInput(oreoEvent);
     const align = useAlign(appDom);
     const snapLineEvent = useSnapLine();
-    const imageEvent = useImage(appDom, curDom, oreoEvent);
+    const imageEvent = useImage(oreoEvent);
     const rectEvent = useRect(oreoEvent);
     const boxSelectEvent = useBoxSelect(oreoEvent);
 

@@ -7,7 +7,6 @@ export const useRuler = () => {
 
     function initTop() {
         const topDom = document.getElementById('oreoEditor') as HTMLDivElement;
-        // topDom.attributes.
         const pixiApp = new Application({
             width: 4000,
             height: 20,
@@ -19,8 +18,8 @@ export const useRuler = () => {
         const graphics = new Graphics();
         const length = 4000; // 尺子的长度
         const tickSpacing = 10; // 刻度线之间的间距
-
         graphics.beginFill(0xde3249);
+        console.log(topDom.style.width, 'topDom.clientWidth');
         for (let i = 0; i <= length; i += tickSpacing) {
             graphics.beginFill(new Color('#999999'));
             let h = 6;

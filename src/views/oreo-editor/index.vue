@@ -59,14 +59,14 @@
                     >
                     </Resizeble>
                     <SnapLine :data="oreoApp.snapLine" />
-                    <MouseMenu
-                        :data="oreoApp.appDom.value"
-                        :visible="oreoApp.menuState.value.visible"
-                        :top="oreoApp.menuState.value.top"
-                        :left="oreoApp.menuState.value.left"
-                        :actions="oreoApp.meneActions"
-                    />
                 </div>
+                <MouseMenu
+                    :data="oreoApp.appDom.value"
+                    :visible="oreoApp.menuState.value.visible"
+                    :top="oreoApp.menuState.value.top"
+                    :left="oreoApp.menuState.value.left"
+                    :actions="oreoApp.meneActions"
+                />
                 <div class="boxSelectHelper" :style="oreoApp.rectangleStyle.value"></div>
             </div>
             <BottomTools

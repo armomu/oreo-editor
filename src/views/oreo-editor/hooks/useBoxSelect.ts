@@ -33,7 +33,7 @@ export const useBoxSelect = (oreoEvent: OreoEvent) => {
         boxSelectState.visible = true;
     };
     const boxSelectWorkEventUp = (is: boolean, e: PointerEvent) => {
-        if (!is) return;
+        if (!is || !mouseDown) return;
         boxSelectState.visible = false;
         mouseDown = false;
         checkSelectWrap();

@@ -1,13 +1,9 @@
 import { ref, shallowRef, type Ref } from 'vue';
 import { cloneDeep } from 'lodash';
-import { beaseDom, type VirtualDom } from './enumTypes';
+import { beaseDom } from './enumTypes';
 import type { OreoEvent } from './enumTypes';
 
-export const useImage = (
-    appDom: Ref<VirtualDom[]>,
-    curDom: Ref<VirtualDom | undefined>,
-    oreoEvent: OreoEvent
-) => {
+export const useImage = (oreoEvent: OreoEvent) => {
     const imageFileRef = shallowRef<any>();
 
     const onBottomToolsImage = () => {
@@ -17,10 +13,10 @@ export const useImage = (
     };
 
     const imageWorkEventMove = (is: boolean, e: PointerEvent) => {
-        if (is && curDom.value) {
+        if (is && oreoEvent.curDom.value) {
             console.log('iamge=======');
-            curDom.value.styles.left = e.layerX + 0;
-            curDom.value.styles.top = e.layerY + 0;
+            oreoEvent.curDom.value.styles.left = e.layerX + 0;
+            oreoEvent.curDom.value.styles.top = e.layerY + 0;
         }
     };
 
@@ -39,10 +35,8 @@ export const useImage = (
             obj.styles.fill = false;
             obj.styles.width = 216;
             obj.styles.height = (image.height / image.width) * 216;
-
-            curDom.value = obj;
-            appDom.value.push(curDom.value);
-            console.log(appDom.value);
+            oreoEvent.curDom.value = obj;
+            oreoEvent.appDom.value.push(oreoEvent.curDom.value);
         };
     };
 

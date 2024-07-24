@@ -59,12 +59,14 @@ const showGroup = computed(() => {
 <style lang="scss">
 .contextmenu {
     background: rgba(18, 18, 18);
-    position: absolute;
-    left: 200px;
-    top: 300px;
+    position: fixed;
+    // left: 200px;
+    // top: 300px;
     z-index: 999;
     padding: 4px;
     border-radius: 6px;
+    // transform: scale(1) !important;
+    // transform-origin: top left;
     .contextmenu_item {
         color: #fff;
         line-height: 28px;
