@@ -31,7 +31,11 @@
                 }"
             >
                 <Grid />
-                <div class="work_content" id="work_content" :style="{ scale: oreoApp.scale.value }">
+                <div
+                    class="work_content"
+                    id="work_content"
+                    :style="{ transform: `scale(${oreoApp.scale.value})` }"
+                >
                     <Resizeble
                         v-for="(item, key) in oreoApp.appDom.value"
                         :key="key"

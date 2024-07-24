@@ -40,6 +40,7 @@ export const useRuler = () => {
         topRulerDom.value = pixiApp.view;
         initLeft();
     }
+
     function initLeft() {
         const topDom = document.getElementById('layers') as HTMLDivElement;
         // topDom.attributes.
@@ -83,7 +84,6 @@ export const useRuler = () => {
 
     const workAreaDomRef = shallowRef<HTMLDivElement>();
     const onWorkAreaScroll = (e: Event) => {
-        // const leftRulerDom = leftRulerDom.value as HTMLDivElement;
         leftRulerDom.value.style.top = `-${workAreaDomRef.value?.scrollTop}px`;
         const left = parseFloat(workAreaDomRef.value?.scrollLeft + '');
         topRulerDom.value.style.left = `${220 - left}px`;
@@ -107,7 +107,6 @@ export const useRuler = () => {
         if (!is || !start) return;
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
-        // const dom =
         if (workAreaDomRef.value) {
             workAreaDomRef.value.scrollLeft = scrollLeft - deltaX;
             workAreaDomRef.value.scrollTop = scrollTop - deltaY;
@@ -123,8 +122,8 @@ export const useRuler = () => {
     onMounted(() => {
         initTop();
         if (workAreaDomRef.value) {
-            workAreaDomRef.value.scrollLeft = 2000;
-            workAreaDomRef.value.scrollTop = 2000;
+            workAreaDomRef.value.scrollLeft = 1900;
+            workAreaDomRef.value.scrollTop = 1900;
         }
     });
 

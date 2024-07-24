@@ -220,7 +220,8 @@ export interface OreoEvent {
     mouseMode: MouseMode;
     selectedList: Ref<VirtualDom[]>;
     pointerEventState: PointerEventState;
-    getPointerWrapBoundsInfo: (client?: boolean) => BoundsInfo;
+    getClientBounds: (client?: boolean) => BoundsInfo;
+    getRectClientBounds: (client?: boolean) => BoundsInfo;
     onMouseMode: (name: string) => void;
     getBoundsInfo: (callback?: (_: VirtualDom) => void) => BoundsInfo;
     cancelSelect: () => void;

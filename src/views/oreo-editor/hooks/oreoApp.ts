@@ -26,12 +26,12 @@ const OreoApp = () => {
         ...beaseDom[0],
     });
     // 当前视图放大的倍数
-    const scale = ref(1);
+    const scale = ref(1.25);
 
-    //
+    // 对应 css
     const workDomOffset = reactive({
-        contentMargin: 2000,
-        workPadding: 20,
+        contentMargin: 2000, //  .work_content margin: 2000px;
+        workPadding: 20, // .work-area padding: 20px 20px;
     });
 
     // 是否禁用所有可操作的图层
@@ -101,15 +101,17 @@ const OreoApp = () => {
     const onPointerUp = (e: PointerEvent) => {
         setPointerEventState(e, 'up');
         boxSelectEvent.boxSelectWorkEventUp(mouseMode.boxSelect, e);
-        rectEvent.rectWorkEventUp();
+        rectEvent.rectWorkEventUp(mouseMode.draRact);
         rulerBarEvent.rulerWorkEvenEnd(mouseMode.hand);
     };
     const pointerEventState = reactive<PointerEventState>({
         mouseDown: false,
-        targetClientTop: 0, // workArea DIV距离屏幕的距离
-        targetClientLeft: 0, // workArea DIV距离屏幕的距离
-        clientStartX: 0, // 基于屏幕 减去滚动条距离左边的距离
-        clientStartY: 0, // 基于屏幕 减去滚动条距离顶部的距离
+        // target 距离屏幕顶部距离减去 target滚动条距离
+        targetClientTop: 0,
+        targetClientLeft: 0,
+        // 基于屏幕clientX减去 targetClientTop 距离 得到相对于 workArea position: absolute; 的left位置信息
+        clientStartX: 0,
+        clientStartY: 0,
         clientEndX: 0, // 结束时同上
         clientEndY: 0, // 结束时同上
         startX: 0, // 等于clientX
@@ -132,20 +134,27 @@ const OreoApp = () => {
 
                 pointerEventState.startX = e.clientX;
                 pointerEventState.startY = e.clientY;
+                // console.log('============');
+                // console.log(pointerEventState);
+                // console.log(targetRect);
+                // // @ts-ignore
+                // console.log(e.target.scrollTop, e.target.scrollLeft);
+                // console.log('setPointerEventState');
             }
         }
         if (type === 'move' && pointerEventState.mouseDown) {
             pointerEventState.clientEndX = e.clientX - pointerEventState.targetClientLeft;
+
             pointerEventState.clientEndY = e.clientY - pointerEventState.targetClientTop;
             pointerEventState.endX = e.clientX;
             pointerEventState.endY = e.clientY;
         }
 
         if (type === 'up' && pointerEventState.mouseDown) {
-            pointerEventState.clientEndX = e.clientX - pointerEventState.targetClientLeft;
-            pointerEventState.clientEndY = e.clientY - pointerEventState.targetClientTop;
-            pointerEventState.endX = e.clientX;
-            pointerEventState.endY = e.clientY;
+            // pointerEventState.clientEndX = e.clientX - pointerEventState.targetClientLeft;
+            // pointerEventState.clientEndY = e.clientY - pointerEventState.targetClientTop;
+            // pointerEventState.endX = e.clientX;
+            // pointerEventState.endY = e.clientY;
             pointerEventState.mouseDown = false;
         }
     };
@@ -153,7 +162,8 @@ const OreoApp = () => {
      * 获取鼠标框选的边界 绝对定位于 work-area div
      * @param client 获取位于屏幕的框选边界 不传则获取位于屏幕减去滚动条和work-area距离的位置
      */
-    const getPointerWrapBoundsInfo = (client = false) => {
+    const getClientBounds = (client = false) => {
+        // 位于屏幕的框选边界
         if (client) {
             const { startX, startY, endX, endY } = pointerEventState;
             const left = Math.min(startX, endX);
@@ -172,6 +182,23 @@ const OreoApp = () => {
         const top = Math.min(clientStartY, clientEndY);
         const width = Math.abs(clientEndX - clientStartX);
         const height = Math.abs(clientEndY - clientStartY);
+        return {
+            left,
+            top,
+            width,
+            height,
+        };
+    };
+
+    /**
+     * 获取鼠标框选的边界 绝对定位于 work_content div
+     */
+    const getRectClientBounds = () => {
+        const { clientStartX, clientStartY, clientEndX, clientEndY } = pointerEventState;
+        const left = Math.floor((Math.min(clientStartX, clientEndX) - 2020) / scale.value);
+        const top = Math.floor((Math.min(clientStartY, clientEndY) - 2020) / scale.value);
+        const width = Math.floor(Math.abs(clientEndX - clientStartX) / scale.value);
+        const height = Math.floor(Math.abs(clientEndY - clientStartY) / scale.value);
         return {
             left,
             top,
@@ -210,8 +237,8 @@ const OreoApp = () => {
         }
         return {
             top: Math.min(...topList),
-            width: maxRight - minLeft,
-            height: maxBottom - minTop,
+            width: Math.floor(maxRight - minLeft),
+            height: Math.floor(maxBottom - minTop),
             left: Math.min(...leftList),
         };
     };
@@ -396,7 +423,8 @@ const OreoApp = () => {
         mouseMode,
         selectedList,
         pointerEventState,
-        getPointerWrapBoundsInfo,
+        getClientBounds,
+        getRectClientBounds,
         onMouseMode,
         getBoundsInfo,
         cancelSelect,

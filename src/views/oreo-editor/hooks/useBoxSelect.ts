@@ -9,7 +9,7 @@ export const useBoxSelect = (oreoEvent: OreoEvent) => {
     });
 
     const rectangleStyle = computed(() => {
-        const info = oreoEvent.getPointerWrapBoundsInfo();
+        const info = oreoEvent.getClientBounds();
         return {
             left: info.left + 'px',
             top: info.top + 'px',
@@ -48,7 +48,7 @@ export const useBoxSelect = (oreoEvent: OreoEvent) => {
         }
         // 获取所有对象集合
         const doms = document.getElementsByClassName('vdr');
-        const { left, top, width, height } = oreoEvent.getPointerWrapBoundsInfo(true);
+        const { left, top, width, height } = oreoEvent.getClientBounds(true);
         // 所有包含在框选内的图层、组合的ID，不包含虚拟组合
         const uids: number[] = [];
         for (let i = 0; i < doms.length; i++) {

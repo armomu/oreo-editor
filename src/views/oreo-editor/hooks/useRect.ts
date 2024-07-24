@@ -6,15 +6,9 @@ export const useRect = (oreoEvent: OreoEvent) => {
     const rectWorkEventDown = (is: boolean, e: PointerEvent) => {
         if (!is) return;
         e.preventDefault();
-        const info = oreoEvent.getPointerWrapBoundsInfo();
         const newDom = cloneDeep(beaseDom[0]);
-        newDom.active = false;
+        newDom.visible = false;
         newDom.selected = true;
-        newDom.locked = false;
-        newDom.styles.width = 0;
-        newDom.styles.height = 0;
-        newDom.styles.left = info.left;
-        newDom.styles.top = info.top;
         newDom.id = new Date().getTime();
         oreoEvent.curDom.value = newDom;
         oreoEvent.appDom.value.push(newDom);
@@ -23,13 +17,14 @@ export const useRect = (oreoEvent: OreoEvent) => {
         if (!is || !oreoEvent.curDom.value) return;
         e.preventDefault();
         oreoEvent.curDom.value.visible = true;
-        const info = oreoEvent.getPointerWrapBoundsInfo();
+        const info = oreoEvent.getRectClientBounds();
         oreoEvent.curDom.value.styles.width = info.width;
         oreoEvent.curDom.value.styles.height = info.height;
-        oreoEvent.curDom.value.styles.top = info.top - 2020;
-        oreoEvent.curDom.value.styles.left = info.left - 2020;
+        oreoEvent.curDom.value.styles.top = info.top;
+        oreoEvent.curDom.value.styles.left = info.left;
     };
-    const rectWorkEventUp = () => {
+    const rectWorkEventUp = (is: boolean) => {
+        if (!is) return;
         oreoEvent.onMouseMode('boxSelect');
     };
 
