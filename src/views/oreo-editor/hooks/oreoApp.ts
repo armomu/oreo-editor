@@ -432,7 +432,7 @@ const OreoApp = () => {
         cancelActived,
         deleteVirtualGroup,
     };
-    const rulerBarEvent = useRuler();
+    const rulerBarEvent = useRuler(oreoEvent);
     const dragWidgetEvent = useDragWidget(oreoEvent);
     const mouseMenuEvent = useMouseMenu(oreoEvent);
     const iconEvent = useIcon(oreoEvent);

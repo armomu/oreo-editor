@@ -1,14 +1,15 @@
 import { Application, Color, Graphics, Text } from 'pixi.js';
 import { onMounted, shallowRef } from 'vue';
+import type { OreoEvent } from './enumTypes';
 
-export const useRuler = () => {
+export const useRuler = (oreoEvent: OreoEvent) => {
     const topRulerDom = shallowRef();
     const leftRulerDom = shallowRef();
 
     function initTop() {
         const topDom = document.getElementById('oreoEditor') as HTMLDivElement;
         const pixiApp = new Application({
-            width: 4000,
+            width: 6000,
             height: 20,
             background: new Color('#ffffff'),
         });
@@ -16,16 +17,28 @@ export const useRuler = () => {
         pixiApp.view.classList.add('top_ruler');
         topDom.appendChild(pixiApp.view as any);
         const graphics = new Graphics();
-        const length = 4000; // 尺子的长度
+        const length = 6000; // 尺子的长度
         const tickSpacing = 10; // 刻度线之间的间距
         graphics.beginFill(0xde3249);
-        console.log(topDom.style.width, 'topDom.clientWidth');
+        let value = 2030;
+        let increasing = false;
         for (let i = 0; i <= length; i += tickSpacing) {
             graphics.beginFill(new Color('#999999'));
             let h = 6;
-            if (i % 50 === 0) {
+            if (increasing) {
+                value += 10;
+            } else {
+                value -= 10;
+            }
+
+            if (value < 0) {
+                increasing = true;
+                value = Math.abs(value);
+            }
+
+            if (value % 50 === 0) {
                 h = 12;
-                const label = new Text(i);
+                const label = new Text(value);
                 label.style.fontSize = 10;
                 label.style.fill = '#999999';
                 label.x = i + 2;
@@ -45,7 +58,7 @@ export const useRuler = () => {
         // topDom.attributes.
         const pixiApp = new Application({
             width: 20,
-            height: 4000,
+            height: 6000,
             background: new Color('#ffffff'),
         });
         // @ts-ignore
@@ -53,17 +66,30 @@ export const useRuler = () => {
         topDom.appendChild(pixiApp.view as any);
         const graphics = new Graphics();
 
-        const length = 4000; // 尺子的长度
+        const length = 6000; // 尺子的长度
         const tickSpacing = 10; // 刻度线之间的间距
+        let value = 2030;
+        let increasing = false;
 
         for (let y = 0; y <= length; y += tickSpacing) {
             graphics.beginFill(new Color('#999999'));
             const x = 0;
             let w = 6;
-            if (y % 50 === 0) {
+
+            if (increasing) {
+                value += 10;
+            } else {
+                value -= 10;
+            }
+
+            if (value < 0) {
+                increasing = true;
+                value = Math.abs(value);
+            }
+            if (value % 50 === 0) {
                 w = 12;
                 if (y > 20) {
-                    const label = new Text(y);
+                    const label = new Text(value);
                     label.style.fontSize = 10;
                     label.style.fill = '#999999';
                     label.x = 20;

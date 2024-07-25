@@ -1,5 +1,5 @@
-import type { Ref } from 'vue';
-import { beaseDom, VirtualDomType, type VirtualDom } from './enumTypes';
+// import type { Ref } from 'vue';
+import { beaseDom, VirtualDomType } from './enumTypes';
 import type { OreoEvent } from './enumTypes';
 import { cloneDeep } from 'lodash';
 
@@ -15,6 +15,7 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
     let onEnteState = false;
+
     const onInput = (e: Event) => {
         if (oreoEvent.curDom.value && oreoEvent.mouseMode.text && !onEnteState) {
             // @ts-ignore
@@ -31,6 +32,7 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
             }
         }
     };
+
     const onEnter = () => {
         onEnteState = true;
         if (oreoEvent.curDom.value && oreoEvent.curDom.value.fontStyle) {
