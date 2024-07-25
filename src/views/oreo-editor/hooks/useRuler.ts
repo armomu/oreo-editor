@@ -1,5 +1,5 @@
 import { Application, Color, Graphics, Text } from 'pixi.js';
-import { onMounted, shallowRef } from 'vue';
+import { onMounted, shallowRef, onUnmounted } from 'vue';
 import type { OreoEvent } from './enumTypes';
 
 export const useRuler = (oreoEvent: OreoEvent) => {
@@ -29,16 +29,16 @@ export const useRuler = (oreoEvent: OreoEvent) => {
         const length = 6000; // 尺子的长度
         const tickSpacing = 10; // 刻度线之间的间距
 
+        const scale = 1.25;
         graphics.beginFill(0xde3249);
         let value = 2030;
         let increasing = false;
-        const scale = 1.25;
+
         const gridSize = getGridSize(scale); // 每小格表示的宽度
-        //
         const gridSize10 = gridSize * tickSpacing; // 每大格表示的宽度
         const gridPixel10 = gridSize10 * scale; // 当前像素
 
-        for (let i = 0; i <= length; i += gridSize10) {
+        for (let i = 0; i <= length; i += tickSpacing) {
             graphics.beginFill(new Color('#999999'));
             let h = 6;
             if (increasing) {
@@ -46,12 +46,10 @@ export const useRuler = (oreoEvent: OreoEvent) => {
             } else {
                 value -= 10;
             }
-
             if (value < 0) {
                 increasing = true;
                 value = Math.abs(value);
             }
-
             if (value % 50 === 0) {
                 h = 12;
                 const label = new Text(value);
@@ -166,7 +164,35 @@ export const useRuler = (oreoEvent: OreoEvent) => {
             workAreaDomRef.value.scrollLeft = 1900;
             workAreaDomRef.value.scrollTop = 1900;
         }
+        window.addEventListener('wheel', onWheelEvent);
     });
+
+    onUnmounted(() => {
+        window.removeEventListener('wheel', onWheelEvent);
+    });
+
+    const onWheelEvent = (event: WheelEvent) => {
+        if (!altDown) return;
+        const down = event.deltaY > 0;
+        if (down) {
+            oreoEvent.scale.value -= 0.2;
+        } else {
+            oreoEvent.scale.value += 0.2;
+        }
+    };
+    let altDown = false;
+    const onRulerKeydown = (event: KeyboardEvent) => {
+        if (event.code === 'AltLeft' || event.code === 'AltRight') {
+            // event.preventDefault();
+            altDown = true;
+        }
+    };
+
+    const onRulerKeyup = (event: KeyboardEvent) => {
+        if (event.code === 'AltLeft' || event.code === 'AltRight') {
+            altDown = false;
+        }
+    };
 
     return {
         onWorkAreaScroll,
@@ -176,5 +202,7 @@ export const useRuler = (oreoEvent: OreoEvent) => {
         rulerWorkEventDown,
         rulerWorkEventMove,
         rulerWorkEvenEnd,
+        onRulerKeydown,
+        onRulerKeyup,
     };
 };

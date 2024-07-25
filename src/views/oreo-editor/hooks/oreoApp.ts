@@ -77,7 +77,11 @@ const OreoApp = () => {
                 return;
             }
             // 点击的对象是右键菜单项目不做操作
-            if (className.includes('contextmenu_item')) {
+            if (
+                className.includes('contextmenu_item') ||
+                className.includes('contextmenu_label') ||
+                className.includes('contextmenu_desc')
+            ) {
                 return;
             }
             cancelActived();
@@ -396,20 +400,22 @@ const OreoApp = () => {
                     break;
             }
         }
+        rulerBarEvent.onRulerKeydown(event);
     }
     function onKeyup(event: KeyboardEvent) {
         if (event.code === 'Space' && mouseMode.hand) {
             onMouseMode('boxSelect');
         }
+        rulerBarEvent.onRulerKeyup(event);
     }
 
     onMounted(() => {
-        document.addEventListener('keydown', onKeydown);
-        document.addEventListener('keyup', onKeyup);
+        window.addEventListener('keydown', onKeydown);
+        window.addEventListener('keyup', onKeyup);
     });
     onUnmounted(() => {
-        document.removeEventListener('keydown', onKeydown);
-        document.removeEventListener('keyup', onKeyup);
+        window.removeEventListener('keydown', onKeydown);
+        window.removeEventListener('keyup', onKeyup);
     });
 
     const jsonViewerVisible = ref(false);

@@ -178,6 +178,7 @@
             background: #ffffff;
             pointer-events: none;
             transform-origin: top left;
+            transition: all 0.3s;
             .testhelper {
                 position: absolute;
                 z-index: 999;

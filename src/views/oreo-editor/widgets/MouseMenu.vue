@@ -8,32 +8,32 @@
         }"
     >
         <div class="contextmenu_item" @click="actions.onMenuVisible">
-            <div class="label">隐藏/显示</div>
-            <div class="desc">Shift + Ctrl + H</div>
+            <div class="contextmenu_label">隐藏/显示</div>
+            <div class="contextmenu_desc">Shift + Ctrl + H</div>
         </div>
         <div class="contextmenu_item" @click="actions.onMenuDelete">
-            <div class="label">删除</div>
-            <div class="desc">Delete & Back</div>
+            <div class="contextmenu_label">删除</div>
+            <div class="contextmenu_desc">Delete & Back</div>
         </div>
         <div class="contextmenu_item" @click="actions.onMenuLocked">
-            <div class="label">锁定/解锁</div>
-            <div class="desc">Shift + Ctrl + L</div>
+            <div class="contextmenu_label">锁定/解锁</div>
+            <div class="contextmenu_desc">Shift + Ctrl + L</div>
         </div>
         <div class="contextmenu_item">
-            <div class="label">复制</div>
-            <div class="desc">Ctrl + C</div>
+            <div class="contextmenu_label">复制</div>
+            <div class="contextmenu_desc">Ctrl + C</div>
         </div>
         <div class="contextmenu_item">
-            <div class="label">粘贴</div>
-            <div class="desc">Ctrl + V</div>
+            <div class="contextmenu_label">粘贴</div>
+            <div class="contextmenu_desc">Ctrl + V</div>
         </div>
         <div v-if="showGroup" class="contextmenu_item" @click="actions.onMenuGroup">
-            <div class="label">组合</div>
-            <div class="desc">Ctrl + G</div>
+            <div class="contextmenu_label">组合</div>
+            <div class="contextmenu_desc">Ctrl + G</div>
         </div>
         <div v-if="showGroup" class="contextmenu_item" @click="actions.onMenuDisbandGroup">
-            <div class="label">解除组合</div>
-            <div class="desc">Shift + Ctrl + G</div>
+            <div class="contextmenu_label">解除组合</div>
+            <div class="contextmenu_desc">Shift + Ctrl + G</div>
         </div>
     </div>
 </template>
