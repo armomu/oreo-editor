@@ -6,6 +6,15 @@ export const useRuler = (oreoEvent: OreoEvent) => {
     const topRulerDom = shallowRef();
     const leftRulerDom = shallowRef();
 
+    const getGridSize = (scale: number) => {
+        if (scale <= 0.25) return 40;
+        if (scale <= 0.5) return 20;
+        if (scale <= 1) return 10;
+        if (scale <= 2) return 5;
+        if (scale <= 4) return 2;
+        return 1;
+    };
+
     function initTop() {
         const topDom = document.getElementById('oreoEditor') as HTMLDivElement;
         const pixiApp = new Application({
@@ -19,10 +28,17 @@ export const useRuler = (oreoEvent: OreoEvent) => {
         const graphics = new Graphics();
         const length = 6000; // 尺子的长度
         const tickSpacing = 10; // 刻度线之间的间距
+
         graphics.beginFill(0xde3249);
         let value = 2030;
         let increasing = false;
-        for (let i = 0; i <= length; i += tickSpacing) {
+        const scale = 1.25;
+        const gridSize = getGridSize(scale); // 每小格表示的宽度
+        //
+        const gridSize10 = gridSize * tickSpacing; // 每大格表示的宽度
+        const gridPixel10 = gridSize10 * scale; // 当前像素
+
+        for (let i = 0; i <= length; i += gridSize10) {
             graphics.beginFill(new Color('#999999'));
             let h = 6;
             if (increasing) {
