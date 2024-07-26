@@ -1,43 +1,44 @@
 import { Application, Color, Graphics, Text } from 'pixi.js';
-import { onMounted, shallowRef, onUnmounted } from 'vue';
+import { onMounted, shallowRef, onUnmounted, watch } from 'vue';
 import type { OreoEvent } from './enumTypes';
 
 export const useRuler = (oreoEvent: OreoEvent) => {
     const topRulerDom = shallowRef();
     const leftRulerDom = shallowRef();
-
-    const getGridSize = (scale: number) => {
-        if (scale <= 0.25) return 40;
-        if (scale <= 0.5) return 20;
-        if (scale <= 1) return 10;
-        if (scale <= 2) return 5;
-        if (scale <= 4) return 2;
-        return 1;
-    };
-
+    let pixiApp: Application | null = null;
+    let pixiAppLeft: Application | null = null;
+    watch(
+        () => oreoEvent.scale.value,
+        () => {
+            pixiApp && setRulerBar(pixiApp);
+            pixiAppLeft && setLeftRulerBar(pixiAppLeft);
+        }
+    );
     function initTop() {
         const topDom = document.getElementById('oreoEditor') as HTMLDivElement;
-        const pixiApp = new Application({
+        pixiApp = new Application({
             width: 6000,
             height: 20,
             background: new Color('#ffffff'),
         });
+
         // @ts-ignore
         pixiApp.view.classList.add('top_ruler');
         topDom.appendChild(pixiApp.view as any);
+
+        topRulerDom.value = pixiApp.view;
+        setRulerBar(pixiApp);
+        initLeft();
+    }
+    const setRulerBar = (app: Application) => {
+        app.stage.removeChildren();
         const graphics = new Graphics();
         const length = 6000; // 尺子的长度
         const tickSpacing = 10; // 刻度线之间的间距
 
-        const scale = 1.25;
         graphics.beginFill(0xde3249);
         let value = 2030;
         let increasing = false;
-
-        const gridSize = getGridSize(scale); // 每小格表示的宽度
-        const gridSize10 = gridSize * tickSpacing; // 每大格表示的宽度
-        const gridPixel10 = gridSize10 * scale; // 当前像素
-
         for (let i = 0; i <= length; i += tickSpacing) {
             graphics.beginFill(new Color('#999999'));
             let h = 6;
@@ -52,32 +53,20 @@ export const useRuler = (oreoEvent: OreoEvent) => {
             }
             if (value % 50 === 0) {
                 h = 12;
-                const label = new Text(value);
+                const label = new Text(Math.floor(value / oreoEvent.scale.value));
                 label.style.fontSize = 10;
                 label.style.fill = '#999999';
                 label.x = i + 2;
                 label.y = 9;
-                pixiApp.stage.addChild(label);
+                app.stage.addChild(label);
             }
             graphics.drawRect(i, 0, 1, h);
             graphics.endFill();
         }
-        pixiApp.stage.addChild(graphics);
-        topRulerDom.value = pixiApp.view;
-        initLeft();
-    }
-
-    function initLeft() {
-        const topDom = document.getElementById('layers') as HTMLDivElement;
-        // topDom.attributes.
-        const pixiApp = new Application({
-            width: 20,
-            height: 6000,
-            background: new Color('#ffffff'),
-        });
-        // @ts-ignore
-        pixiApp.view.classList.add('left_ruler');
-        topDom.appendChild(pixiApp.view as any);
+        app.stage.addChild(graphics);
+    };
+    const setLeftRulerBar = (app: Application) => {
+        app.stage.removeChildren();
         const graphics = new Graphics();
 
         const length = 6000; // 尺子的长度
@@ -103,13 +92,13 @@ export const useRuler = (oreoEvent: OreoEvent) => {
             if (value % 50 === 0) {
                 w = 12;
                 if (y > 20) {
-                    const label = new Text(value);
+                    const label = new Text(Math.floor(value / oreoEvent.scale.value));
                     label.style.fontSize = 10;
                     label.style.fill = '#999999';
                     label.x = 20;
                     label.y = y + 4;
                     label.rotation = Math.PI / 2;
-                    pixiApp.stage.addChild(label);
+                    app.stage.addChild(label);
                 }
             }
             if (y > 20) {
@@ -117,8 +106,22 @@ export const useRuler = (oreoEvent: OreoEvent) => {
                 graphics.endFill();
             }
         }
-        pixiApp.stage.addChild(graphics);
-        leftRulerDom.value = pixiApp.view;
+        app.stage.addChild(graphics);
+    };
+
+    function initLeft() {
+        const topDom = document.getElementById('layers') as HTMLDivElement;
+        // topDom.attributes.
+        pixiAppLeft = new Application({
+            width: 20,
+            height: 6000,
+            background: new Color('#ffffff'),
+        });
+        // @ts-ignore
+        pixiAppLeft.view.classList.add('left_ruler');
+        topDom.appendChild(pixiAppLeft.view as any);
+        setLeftRulerBar(pixiAppLeft);
+        leftRulerDom.value = pixiAppLeft.view;
     }
 
     const workAreaDomRef = shallowRef<HTMLDivElement>();

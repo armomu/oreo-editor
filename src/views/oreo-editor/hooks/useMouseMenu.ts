@@ -17,6 +17,16 @@ export const useMouseMenu = (oreoEvent: OreoEvent) => {
         menuState.value.left = e.clientX;
         menuState.value.top = e.clientY;
         menuState.value.visible = true;
+        if (!oreoEvent.curDom.value) {
+            oreoEvent.curDom.value = item;
+            oreoEvent.curDom.value.active = true;
+        }
+        if (oreoEvent.curDom.value && oreoEvent.curDom.value.id !== item.id) {
+            oreoEvent.curDom.value = item;
+            oreoEvent.curDom.value.active = true;
+        } else {
+            oreoEvent.curDom.value && (oreoEvent.curDom.value.active = true);
+        }
         // document.body.addEventListener('click', hideMenu);
         // setTimeout(() => {
         //     // document.body.removeEventListener('click', hideMenu);
