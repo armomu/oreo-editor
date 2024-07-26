@@ -1,4 +1,19 @@
-# oreo-editor
+<p align="center">
+  <img width="200" src="https://github.com/armomu/oreo-editor/raw/main/public/logo.png">
+</p>
+
+<h1 align="center">
+    Oreo Editor
+<div align="center">
+
+![version](https://img.shields.io/badge/Vue-3.x-blue.svg)
+![version](https://img.shields.io/badge/typescript.5.x-red.svg)
+![version](https://img.shields.io/badge/Vite-5.x-green.svg)
+![stars](https://img.shields.io/github/stars/armomu/oreo-editor.svg?style=social&label=Stars)
+
+</div>
+
+</h1>
 
 🎒 这是一个类似`墨刀`原型图编辑器类工具的一个简单纯前端构思实现，使用纯`CSS`样式构建图像操作对象，支持框选，对象组合，锁定，隐藏，右键菜单操作和一些基础CSS样式绑定，设计思路是使用CSS transform定位做图层拖拽位置，目前还有很多BUG没有修，🤔🤔也不知道有没有什么实际的产品业务落地，看看就好了
 
