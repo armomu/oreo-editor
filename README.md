@@ -7,7 +7,7 @@
 <div align="center">
 
 ![version](https://img.shields.io/badge/Vue-3.x-blue.svg)
-![version](https://img.shields.io/badge/typescript.5.x-red.svg)
+![version](https://img.shields.io/badge/typescript-5.x-red.svg)
 ![version](https://img.shields.io/badge/Vite-5.x-green.svg)
 ![stars](https://img.shields.io/github/stars/armomu/oreo-editor.svg?style=social&label=Stars)
 
