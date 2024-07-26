@@ -1,6 +1,6 @@
 <template>
     <template v-if="props.data.visible">
-        <div v-if="isDiv" :style="styles" :class="classNames" :uid="props.data.id">
+        <!-- <div v-if="isDiv" :style="styles" :class="classNames" :uid="props.data.id">
             <div v-if="props.data.label && !props.data.input" class="text">
                 {{ props.data.label }}
             </div>
@@ -27,9 +27,8 @@
                 :size="props.data.styles.width"
             />
             <component v-if="props.data.component" :is="props.data.component" />
-        </div>
+        </div> -->
         <DragResizeBle
-            v-else
             :active="_active"
             :w="_width"
             :h="_height"
@@ -144,12 +143,14 @@ const isDiv = computed(() => {
 
 const disableDrag = computed(() => {
     // 禁用宽高调整
+    if (props.data.input) return false;
     if (props.disable) return false;
     if (props.data.groupId) return false;
     return !props.data.locked && !props.data.input;
 });
 const disableResize = computed(() => {
     // 禁用宽高调整
+    if (props.data.input) return false;
     if (props.disable) return false;
     if (props.data.type === VirtualDomType.Group || props.data.virtualGroup) return false;
     if (props.data.groupId) return false;

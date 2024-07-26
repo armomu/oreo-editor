@@ -420,7 +420,7 @@ const OreoApp = () => {
 
     const jsonViewerVisible = ref(false);
     // 添加测试图层数据
-    appDom.value = testJson._rawValue as any;
+    // appDom.value = testJson._rawValue as any;
 
     const oreoEvent = {
         appDom,
