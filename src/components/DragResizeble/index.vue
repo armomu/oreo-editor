@@ -317,7 +317,7 @@ export default defineComponent({
         this.right = this.parentWidth - this.width - this.left;
         this.bottom = this.parentHeight - this.height - this.top;
         // 禁用
-        if (this.draggable && this.resizable) return;
+        if (!this.draggable && !this.resizable) return;
         this.settingAttribute();
 
         // 优化：取消选中的行为优先绑定在父节点上
@@ -360,7 +360,7 @@ export default defineComponent({
         // 检查父元素大小
         checkParentSize() {
             // 禁用
-            if (this.draggable && this.resizable) return;
+            if (!this.draggable && !this.resizable) return;
             if (this.parent) {
                 const [newParentWidth, newParentHeight] = this.getParentSize();
                 // 修复父元素改变大小后，组件resizing时活动异常
@@ -392,13 +392,13 @@ export default defineComponent({
         },
         // 元素触摸按下
         elementTouchDown(e) {
-            if (this.draggable && this.resizable) return;
+            if (!this.draggable && !this.resizable) return;
             eventsFor = events.touch;
 
             this.elementDown(e);
         },
         elementMouseDown(e) {
-            if (this.draggable && this.resizable) return;
+            if (!this.draggable && !this.resizable) return;
             eventsFor = events.mouse;
             this.elementDown(e);
         },
@@ -500,14 +500,14 @@ export default defineComponent({
         },
         // 控制柄触摸按下
         handleTouchDown(handle, e) {
-            if (this.draggable && this.resizable) return;
+            if (!this.draggable && !this.resizable) return;
             eventsFor = events.touch;
 
             this.handleDown(handle, e);
         },
         // 控制柄按下
         handleDown(handle, e) {
-            if (this.draggable && this.resizable) return;
+            if (!this.draggable && !this.resizable) return;
             if (e instanceof MouseEvent && e.which !== 1) {
                 return;
             }

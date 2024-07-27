@@ -50,7 +50,7 @@
             :scaleRatio="$props.scale"
             @contextmenu.prevent="onMouser"
         >
-            <div v-if="props.data.label && !props.data.input" class="text dr_text">
+            <div v-if="props.data.label" class="text dr_text">
                 {{ props.data.label }}
             </div>
             <a-image
@@ -143,18 +143,23 @@ const isDiv = computed(() => {
 
 const disableDrag = computed(() => {
     // 禁用宽高调整
-    if (props.data.input) return false;
-    if (props.disable) return false;
-    if (props.data.groupId) return false;
-    return !props.data.locked && !props.data.input;
+    if (props.disable || props.data.input || props.data.locked || props.data.groupId) {
+        return false;
+    }
+
+    return true;
 });
 const disableResize = computed(() => {
     // 禁用宽高调整
-    if (props.data.input) return false;
-    if (props.disable) return false;
-    if (props.data.type === VirtualDomType.Group || props.data.virtualGroup) return false;
-    if (props.data.groupId) return false;
-    return !props.data.locked && !props.data.input;
+    if (
+        props.disable ||
+        props.data.groupId ||
+        props.data.type === VirtualDomType.Group ||
+        props.data.virtualGroup
+    ) {
+        return false;
+    }
+    return true;
 });
 
 const lockAspectRatio = computed(() => {

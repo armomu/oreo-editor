@@ -22,9 +22,9 @@ export const useDragWidget = (oreoEvent: OreoEvent) => {
         oreoEvent.cancelActived();
         const { width, height } = dragingDom.styles;
         // @ts-ignore
-        dragingDom.styles.top = e.clientY + e.target.scrollTop - 2100 - height / 2;
+        dragingDom.styles.top = e.clientY + e.target.scrollTop - divRect.top - 2020 - height / 2;
         // @ts-ignore
-        dragingDom.styles.left = e.clientX + e.target.scrollLeft - divRect.left - 2100 - width / 2;
+        dragingDom.styles.left = e.clientX + e.target.scrollLeft - divRect.left - 2020 - width / 2;
         dragingDom.id = new Date().getTime();
         oreoEvent.curDom.value = dragingDom;
         oreoEvent.appDom.value.push(oreoEvent.curDom.value);

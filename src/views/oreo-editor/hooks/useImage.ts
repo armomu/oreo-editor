@@ -9,6 +9,7 @@ export const useImage = (oreoEvent: OreoEvent) => {
     const onBottomToolsImage = () => {
         oreoEvent.cancelActived();
         oreoEvent.onMouseMode('image');
+        console.log(imageFileRef.value);
         imageFileRef.value?.click();
     };
 

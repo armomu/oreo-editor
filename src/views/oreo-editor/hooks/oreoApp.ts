@@ -27,7 +27,7 @@ const OreoApp = () => {
         ...beaseDom[0],
     });
     // 当前视图放大的倍数
-    const scale = ref(1.25);
+    const scale = ref(1);
 
     // 对应 css 还没有做全局管理
     const workAreaOffset = reactive({
