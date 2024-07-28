@@ -52,9 +52,9 @@
                         @mouser="oreoApp.openMenu"
                         @activated="oreoApp.onVirtualDom"
                         @dragging="oreoApp.onDomDragging"
-                        @blur="oreoApp.onBlur"
-                        @input="oreoApp.onInput"
-                        @enter="oreoApp.onEnter"
+                        @blur="oreoApp.onTextBlur"
+                        @input="oreoApp.onTextInput"
+                        @enter="oreoApp.onTextEnter"
                         @resizing="oreoApp.onResize"
                     >
                     </Resizeble>

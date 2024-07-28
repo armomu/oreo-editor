@@ -136,10 +136,13 @@ const OreoApp = () => {
                 pointerEventState.targetClientLeft = targetRect.left - e.target.scrollLeft;
                 pointerEventState.clientStartX = e.clientX - pointerEventState.targetClientLeft;
                 pointerEventState.clientStartY = e.clientY - pointerEventState.targetClientTop;
-
+                pointerEventState.clientEndX = pointerEventState.clientStartX + 0;
+                pointerEventState.clientEndY = pointerEventState.clientStartY + 0;
                 pointerEventState.startX = e.clientX;
                 pointerEventState.startY = e.clientY;
-                // console.log('============');
+                pointerEventState.endX = e.clientX + 0;
+                pointerEventState.endY = e.clientY + 0;
+                // console.log('============');Y
                 // console.log(pointerEventState);
                 // console.log(targetRect);
                 // // @ts-ignore
@@ -149,7 +152,6 @@ const OreoApp = () => {
         }
         if (type === 'move' && pointerEventState.mouseDown) {
             pointerEventState.clientEndX = e.clientX - pointerEventState.targetClientLeft;
-
             pointerEventState.clientEndY = e.clientY - pointerEventState.targetClientTop;
             pointerEventState.endX = e.clientX;
             pointerEventState.endY = e.clientY;
@@ -267,6 +269,9 @@ const OreoApp = () => {
     const cancelSelect = () => {
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
+            if (appDom.value[i].input) {
+                appDom.value[i].input = false;
+            }
         }
         console.log('取消了选择======');
     };
@@ -277,6 +282,9 @@ const OreoApp = () => {
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
             appDom.value[i].active = false;
+            if (appDom.value[i].input) {
+                appDom.value[i].input = false;
+            }
             if (vg && appDom.value[i].groupId === vg.id) {
                 appDom.value[i].groupId = 0;
             }
@@ -294,6 +302,9 @@ const OreoApp = () => {
         const vg = appDom.value.find((item) => item.virtualGroup);
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
+            if (appDom.value[i].input) {
+                appDom.value[i].input = false;
+            }
             if (vg && appDom.value[i].groupId === vg.id) {
                 appDom.value[i].groupId = 0;
             }
@@ -368,6 +379,7 @@ const OreoApp = () => {
             event.code === 'ArrowUp' ||
             event.code === 'ArrowDown'
         ) {
+            if (!mouseMode.boxSelect) return;
             event.preventDefault();
             for (let i = 0; i < selectedList.value.length; i++) {
                 switch (event.code) {

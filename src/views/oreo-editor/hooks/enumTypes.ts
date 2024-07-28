@@ -20,7 +20,7 @@ export const beaseDomStyle: ElementStyles = {
     radius: 0,
 
     fill: true,
-    background: '#efefef',
+    background: '#999999',
 
     border: false,
     borderWidth: '1',

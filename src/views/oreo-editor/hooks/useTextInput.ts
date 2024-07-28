@@ -4,7 +4,7 @@ import type { OreoEvent } from './enumTypes';
 import { cloneDeep } from 'lodash';
 
 export const useTextInput = (oreoEvent: OreoEvent) => {
-    const onBlur = (e: Event) => {
+    const onTextBlur = (e: Event) => {
         if (!oreoEvent.curDom.value) return;
         oreoEvent.curDom.value.input = false;
         oreoEvent.curDom.value.locked = false;
@@ -16,7 +16,7 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
     let onEnteState = false;
 
-    const onInput = (e: Event) => {
+    const onTextInput = (e: Event) => {
         if (oreoEvent.curDom.value && oreoEvent.mouseMode.text && !onEnteState) {
             // @ts-ignore
             context.font = window.getComputedStyle(e.target).getPropertyValue('font');
@@ -33,7 +33,7 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
         }
     };
 
-    const onEnter = () => {
+    const onTextEnter = () => {
         onEnteState = true;
         if (oreoEvent.curDom.value && oreoEvent.curDom.value.fontStyle) {
             oreoEvent.curDom.value.styles.height =
@@ -70,6 +70,7 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
                 pointerDownCount = 0;
                 pointerDownTimer && clearTimeout(pointerDownTimer);
                 oreoEvent.curDom.value.input = true;
+                console.log(oreoEvent.curDom.value);
             }
         }
     };
@@ -79,7 +80,7 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
         if (
             oreoEvent.curDom.value &&
             oreoEvent.curDom.value.input &&
-            className.includes('textarea')
+            className.includes('dr_text')
         ) {
             console.log('正在添加文字中，请继续编辑！');
             return;
@@ -87,21 +88,24 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
         if (
             oreoEvent.curDom.value &&
             oreoEvent.curDom.value.input &&
-            className.includes('work_content')
+            className.includes('work-area')
         ) {
             oreoEvent.curDom.value.input = false;
+            oreoEvent.onMouseMode('boxSelect');
             return;
         }
+        const info = oreoEvent.getRectClientBounds();
         const newDom = cloneDeep(beaseDom[2]);
         newDom.active = false;
         newDom.styles.width = 80;
         newDom.styles.height = 14;
-        newDom.styles.left = e.layerX + 0;
-        newDom.styles.top = e.layerY + 0;
+        newDom.styles.left = info.left;
+        newDom.styles.top = info.top;
 
         newDom.input = true;
         newDom.label = '双击编辑文字';
         newDom.id = new Date().getTime();
+
         oreoEvent.curDom.value = newDom;
         oreoEvent.appDom.value.push(oreoEvent.curDom.value);
         console.log('添加了新的文字对象');
@@ -116,8 +120,8 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
         onTextIconClick,
         draggableTextClick,
         textWorkEventDown,
-        onBlur,
-        onInput,
-        onEnter,
+        onTextBlur,
+        onTextInput,
+        onTextEnter,
     };
 };
