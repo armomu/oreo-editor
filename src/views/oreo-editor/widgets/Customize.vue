@@ -86,11 +86,12 @@
                             ><template #prepend>H</template></a-input-number
                         >
                     </a-col>
-                    <div class="d-flex mt-2">
+                    <div class="d-flex mt-3" style="height: 24px">
                         <v-btn variant="text" disabled icon="mdi-scan-helper" size="x-small" />
                         <a-slider
                             v-model="props.data.styles.radius"
                             style="width: 98px"
+                            size="mini"
                             class="mx-2"
                         />
                         <a-input-number
@@ -100,7 +101,7 @@
                             class="ml-1"
                         />
                     </div>
-                    <div class="d-flex mt-2">
+                    <div class="d-flex mt-3" style="height: 24px">
                         <v-btn variant="text" disabled icon="mdi-restore" size="x-small" />
                         <a-slider
                             disabled
@@ -116,7 +117,7 @@
                             class="ml-1"
                         />
                     </div>
-                    <div class="d-flex mt-2">
+                    <div class="d-flex mt-3" style="height: 24px">
                         <v-btn variant="text" disabled icon="mdi-eye-outline" size="x-small" />
                         <a-slider
                             v-model="props.data.styles.opacity"
@@ -144,11 +145,7 @@
                     /></a-col>
                     <a-col :span="3">
                         <a-color-picker showPreset v-model="props.data.styles.background">
-                            <a-tag
-                                :color="props.data.styles.background"
-                                style="border: 1px #efefef solid; display: block"
-                            >
-                            </a-tag>
+                            <a-tag :color="props.data.styles.background" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16">Fill</a-col>
@@ -157,11 +154,7 @@
                     /></a-col>
                     <a-col :span="3" class="mt-2">
                         <a-color-picker showPreset v-model="props.data.styles.borderColor">
-                            <a-tag
-                                :color="props.data.styles.borderColor"
-                                style="border: 1px #efefef solid; display: block"
-                            >
-                            </a-tag>
+                            <a-tag :color="props.data.styles.borderColor" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16" class="mt-2">Border</a-col>
@@ -193,12 +186,7 @@
                     /></a-col>
                     <a-col :span="3" class="mt-3">
                         <a-color-picker showPreset v-model="props.data.styles.shadowColor">
-                            <a-tag
-                                size="small"
-                                :color="props.data.styles.shadowColor"
-                                style="display: block"
-                            >
-                            </a-tag>
+                            <a-tag :color="props.data.styles.shadowColor" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16" class="mt-3">Shadow</a-col>
@@ -226,12 +214,7 @@
                 <a-row :gutter="8">
                     <a-col :span="3">
                         <a-color-picker showPreset v-model="props.data.fontStyle.color">
-                            <a-tag
-                                size="small"
-                                :color="props.data.fontStyle.color"
-                                style="display: block"
-                            >
-                            </a-tag>
+                            <a-tag :color="props.data.fontStyle.color" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="8">
@@ -256,7 +239,34 @@
                             <a-option value="alishuhei">阿里数黑</a-option>
                         </a-select>
                     </a-col>
-
+                    <a-col :span="12" class="mt-3">
+                        <a-input-number
+                            v-model="props.data.fontStyle.lineHeight"
+                            size="small"
+                            style="width: 100%"
+                            ><template #prepend
+                                ><span style="font-size: 11px">行高</span></template
+                            ></a-input-number
+                        >
+                    </a-col>
+                    <a-col :span="12" class="mt-3">
+                        <a-button-group size="small" style="width: 100%">
+                            <a-button style="width: 33px">
+                                <template #icon
+                                    ><v-icon icon="mdi-format-bold" size="mall"
+                                /></template>
+                            </a-button>
+                            <a-button style="width: 33px">
+                                <template #icon
+                                    ><v-icon icon="mdi-format-underline" size="mall"
+                                /></template>
+                            </a-button>
+                            <a-button style="width: 33px">
+                                <template #icon
+                                    ><v-icon icon="mdi-format-strikethrough" size="mall"
+                                /></template> </a-button
+                        ></a-button-group>
+                    </a-col>
                     <a-col :span="19" class="mt-3">
                         <a-radio-group
                             type="button"
@@ -277,57 +287,14 @@
                             /></a-radio>
                         </a-radio-group>
                     </a-col>
-                    <a-col :span="12" class="mt-3" style="width: auto">
-                        <a-button-group size="small">
-                            <a-button style="width: 33px">
-                                <template #icon
-                                    ><v-icon icon="mdi-format-bold" size="mall"
-                                /></template>
-                            </a-button>
-                            <a-button style="width: 33px">
-                                <template #icon
-                                    ><v-icon icon="mdi-format-underline" size="mall"
-                                /></template>
-                            </a-button>
-                            <a-button style="width: 33px">
-                                <template #icon
-                                    ><v-icon icon="mdi-format-strikethrough" size="mall"
-                                /></template> </a-button
-                        ></a-button-group>
-                    </a-col>
-                    <a-col :span="12" class="mt-3" style="width: auto">
-                        <a-button-group size="mini" disabled>
-                            <a-button style="width: 33px">
-                                <template #icon
-                                    ><v-icon icon="mdi-format-vertical-align-bottom" size="mall"
-                                /></template>
-                            </a-button>
-                            <a-button style="width: 33px">
-                                <template #icon
-                                    ><v-icon icon="mdi-format-vertical-align-center" size="mall"
-                                /></template>
-                            </a-button>
-                            <a-button style="width: 33px">
-                                <template #icon
-                                    ><v-icon icon="mdi-format-vertical-align-top" size="mall"
-                                /></template>
-                            </a-button>
-                        </a-button-group>
-                    </a-col>
                 </a-row>
-
                 <a-row :gutter="8">
                     <a-col :span="4" class="mt-3 pt-1">
                         <a-checkbox v-model="props.data.fontStyle.shadow"
                     /></a-col>
                     <a-col :span="3" class="mt-3">
                         <a-color-picker showPreset v-model="props.data.fontStyle.shadowColor">
-                            <a-tag
-                                size="small"
-                                :color="props.data.fontStyle.shadowColor"
-                                style="display: block"
-                            >
-                            </a-tag>
+                            <a-tag :color="props.data.fontStyle.shadowColor"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16" class="mt-3">Shadow</a-col>

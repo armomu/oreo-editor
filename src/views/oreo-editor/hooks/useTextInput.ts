@@ -52,12 +52,12 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
     // eslint-disable-next-line no-undef
     let pointerDownTimer: NodeJS.Timeout | null = null;
     const draggableTextClick = (is: boolean, className: string, id: number) => {
+        console.log(is, className, id, '==draggableTextClick');
         if (
             is &&
             oreoEvent.curDom.value &&
             className.includes('draggable') &&
-            id === oreoEvent.curDom.value.id &&
-            oreoEvent.curDom.value.type === VirtualDomType.Text
+            id === oreoEvent.curDom.value.id
         ) {
             // 判定双击
             pointerDownCount++;
@@ -70,7 +70,7 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
                 pointerDownCount = 0;
                 pointerDownTimer && clearTimeout(pointerDownTimer);
                 oreoEvent.curDom.value.input = true;
-                console.log(oreoEvent.curDom.value);
+                console.log(oreoEvent.curDom.value, '双击');
             }
         }
     };
@@ -80,8 +80,13 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
         if (
             oreoEvent.curDom.value &&
             oreoEvent.curDom.value.input &&
-            className.includes('dr_text')
+            className.includes('textarea')
         ) {
+            try {
+                // @ts-ignore
+                e.target?.focus();
+            } catch (err) {}
+
             console.log('正在添加文字中，请继续编辑！');
             return;
         }
