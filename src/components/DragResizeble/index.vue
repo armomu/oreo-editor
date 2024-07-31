@@ -14,6 +14,8 @@
         @mousedown="elementMouseDown"
         @touchstart="elementTouchDown"
         @contextmenu="onContextMenu"
+        :data-is-check="isConflictCheck"
+        :data-is-snap="snap"
     >
         <div
             v-for="handle in actualHandles"
@@ -318,7 +320,7 @@ export default defineComponent({
         this.bottom = this.parentHeight - this.height - this.top;
         // 禁用
         if (!this.draggable && !this.resizable) return;
-        this.settingAttribute();
+        // this.settingAttribute();
 
         // 优化：取消选中的行为优先绑定在父节点上
         const parentElement = this.$el.parentNode;
@@ -872,9 +874,9 @@ export default defineComponent({
         // 设置属性
         settingAttribute() {
             // 设置冲突检测
-            this.$el.setAttribute('data-is-check', `${this.isConflictCheck}`);
-            // 设置对齐元素
-            this.$el.setAttribute('data-is-snap', `${this.snap}`);
+            // this.$el.setAttribute('data-is-check', `${this.isConflictCheck}`);
+            // // 设置对齐元素
+            // this.$el.setAttribute('data-is-snap', `${this.snap}`);
         },
         // 冲突检测
         conflictCheck() {

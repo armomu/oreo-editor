@@ -9,16 +9,15 @@ export const useImage = (oreoEvent: OreoEvent) => {
     const onBottomToolsImage = () => {
         oreoEvent.cancelActived();
         oreoEvent.onMouseMode('image');
-        console.log(imageFileRef.value);
         imageFileRef.value?.click();
     };
 
     const imageWorkEventMove = (is: boolean, e: PointerEvent) => {
-        if (is && oreoEvent.curDom.value) {
-            console.log('iamge=======');
-            oreoEvent.curDom.value.styles.left = e.layerX + 0;
-            oreoEvent.curDom.value.styles.top = e.layerY + 0;
-        }
+        // if (is && oreoEvent.curDom.value) {
+        //     console.log('iamge=======');
+        //     oreoEvent.curDom.value.styles.left = e.layerX + 0;
+        //     oreoEvent.curDom.value.styles.top = e.layerY + 0;
+        // }
     };
 
     const onAddImage = (event: Event) => {
@@ -33,12 +32,16 @@ export const useImage = (oreoEvent: OreoEvent) => {
         obj.url = _URL.createObjectURL(file);
         image.src = obj.url;
         image.onload = () => {
+            obj.styles.left = 500;
+            obj.styles.top = 500;
             obj.styles.fill = false;
             obj.styles.width = 216;
             obj.styles.height = (image.height / image.width) * 216;
+
             oreoEvent.curDom.value = obj;
             oreoEvent.appDom.value.push(oreoEvent.curDom.value);
         };
+        oreoEvent.onMouseMode('boxSelect');
     };
 
     return {

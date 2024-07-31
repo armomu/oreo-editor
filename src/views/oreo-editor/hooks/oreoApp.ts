@@ -65,17 +65,6 @@ const OreoApp = () => {
         // 每个模式下都要自己管理自己的事件冒泡 e.preventDefault();
         setPointerEventState(e, 'down');
         if (mouseMode.boxSelect) {
-            // 当点击的对象是拖拽框
-            if (
-                className.includes('draggable') ||
-                className.includes('dr_text') ||
-                className.includes('handle')
-            ) {
-                console.log('当前点击是拖拽框');
-                // 找出当前ID所有子对象 包括组合子组合中的对象
-                selectedList.value = findUids(e_t_did);
-                return;
-            }
             // 点击的对象是右键菜单项目不做操作
             if (
                 className.includes('contextmenu_item') ||
@@ -84,9 +73,11 @@ const OreoApp = () => {
             ) {
                 return;
             }
-            cancelActived();
+            if (className.includes('work-area')) {
+                cancelActived();
+            }
         }
-        console.log('================222');
+        console.log('================模块event事件');
         boxSelectEvent.boxSelectWorkEventDown(mouseMode.boxSelect, className, e);
         textInputEvent.draggableTextClick(mouseMode.boxSelect, className, e_t_did);
         rulerBarEvent.rulerWorkEventDown(mouseMode.hand, e);
@@ -95,11 +86,11 @@ const OreoApp = () => {
     };
 
     const onPointerMove = (e: PointerEvent) => {
+        // imageEvent.imageWorkEventMove(mouseMode.image, e);
         setPointerEventState(e, 'move');
         if (!pointerEventState.mouseDown) return;
         boxSelectEvent.boxSelectWorkEventMove(mouseMode.boxSelect, e);
         rectEvent.rectWorkEventMove(mouseMode.draRact, e);
-        imageEvent.imageWorkEventMove(mouseMode.image, e);
         rulerBarEvent.rulerWorkEventMove(mouseMode.hand, e);
     };
 
@@ -136,13 +127,14 @@ const OreoApp = () => {
                 pointerEventState.targetClientLeft = targetRect.left - e.target.scrollLeft;
                 pointerEventState.clientStartX = e.clientX - pointerEventState.targetClientLeft;
                 pointerEventState.clientStartY = e.clientY - pointerEventState.targetClientTop;
-                pointerEventState.clientEndX = pointerEventState.clientStartX + 0;
-                pointerEventState.clientEndY = pointerEventState.clientStartY + 0;
+
                 pointerEventState.startX = e.clientX;
                 pointerEventState.startY = e.clientY;
-                pointerEventState.endX = e.clientX + 0;
-                pointerEventState.endY = e.clientY + 0;
-                // console.log('============');Y
+
+                // 如果没有结束坐标只点击的时候获取的结束位置就会以0计算
+                pointerEventState.clientEndX = e.clientX - pointerEventState.targetClientLeft;
+                pointerEventState.clientEndY = e.clientY - pointerEventState.targetClientTop;
+                // console.log('============');
                 // console.log(pointerEventState);
                 // console.log(targetRect);
                 // // @ts-ignore
@@ -167,7 +159,7 @@ const OreoApp = () => {
     };
     /**
      * 获取鼠标框选的边界 绝对定位于 work-area div
-     * @param client 获取位于屏幕的框选边界 不传则获取位于屏幕减去滚动条和work-area距离的位置
+     * @param client 获取位于屏幕的框选边界 绝对定位于 work-area div
      */
     const getClientBounds = (client = false) => {
         // 位于屏幕的框选边界
@@ -269,9 +261,6 @@ const OreoApp = () => {
     const cancelSelect = () => {
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
-            if (appDom.value[i].input) {
-                appDom.value[i].input = false;
-            }
         }
         console.log('取消了选择======');
     };
@@ -282,39 +271,36 @@ const OreoApp = () => {
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
             appDom.value[i].active = false;
-            if (appDom.value[i].input) {
-                appDom.value[i].input = false;
-            }
+            appDom.value[i].input = false;
             if (vg && appDom.value[i].groupId === vg.id) {
                 appDom.value[i].groupId = 0;
             }
         }
+        selectedList.value = [];
         // 删除虚拟组合
         vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
         // 当前也删掉
         if (curDom.value) {
             curDom.value = undefined;
         }
-        console.log('取消了所有选择、选中、虚拟组合的图层======');
+        console.log('取消了所有选择、选中、虚拟组合、和选中的图层======');
     };
     // 删除虚拟组合
     const deleteVirtualGroup = () => {
         const vg = appDom.value.find((item) => item.virtualGroup);
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
-            if (appDom.value[i].input) {
-                appDom.value[i].input = false;
-            }
             if (vg && appDom.value[i].groupId === vg.id) {
                 appDom.value[i].groupId = 0;
             }
         }
+        selectedList.value = [];
         // 删除虚拟组合
         vg && appDom.value.splice(appDom.value.indexOf(vg), 1);
         if (curDom.value && vg && curDom.value.id === vg.id) {
             curDom.value = undefined;
         }
-        console.log('删除了虚拟组======');
+        console.log('删除了虚拟组和选中的图层======');
     };
 
     // 设置当前鼠标正在做什么工作
@@ -327,8 +313,9 @@ const OreoApp = () => {
 
     // 点击了可操作的图层
     const onVirtualDom = (val: VirtualDom) => {
-        console.log(val, '设置了curDom');
+        console.log('设置了curDom=============');
         curDom.value = val;
+        selectedList.value = findUids(val.id);
     };
     // 删除图层
     const onDelVirtualDom = (id: number) => {
@@ -367,9 +354,14 @@ const OreoApp = () => {
     }
 
     function onKeydown(event: KeyboardEvent) {
+        const isInput = appDom.value.findIndex((item) => item.input);
+        if (isInput > -1) {
+            return;
+        }
         if (event.code === 'Space' || event.code === 'Spacebar') {
             event.preventDefault();
-            if (mouseMode.boxSelect && !mouseMode.hand) {
+
+            if (mouseMode.boxSelect && !mouseMode.hand && !mouseMode.text) {
                 onMouseMode('hand');
             }
         }
@@ -379,7 +371,6 @@ const OreoApp = () => {
             event.code === 'ArrowUp' ||
             event.code === 'ArrowDown'
         ) {
-            if (!mouseMode.boxSelect) return;
             event.preventDefault();
             for (let i = 0; i < selectedList.value.length; i++) {
                 switch (event.code) {
@@ -449,6 +440,7 @@ const OreoApp = () => {
         cancelSelect,
         cancelActived,
         deleteVirtualGroup,
+        findUids,
     };
     const rulerBarEvent = useRuler(oreoEvent);
     const dragWidgetEvent = useDragWidget(oreoEvent);

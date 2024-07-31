@@ -87,6 +87,7 @@ export const useBoxSelect = (oreoEvent: OreoEvent) => {
             obj.styles.left = boundsInfo.left;
             oreoEvent.curDom.value = obj;
             oreoEvent.appDom.value.push(oreoEvent.curDom.value);
+            oreoEvent.selectedList.value = oreoEvent.findUids(_id_);
         }
     };
 

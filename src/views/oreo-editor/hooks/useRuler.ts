@@ -186,7 +186,6 @@ export const useRuler = (oreoEvent: OreoEvent) => {
     let altDown = false;
     const onRulerKeydown = (event: KeyboardEvent) => {
         if (event.code === 'AltLeft' || event.code === 'AltRight') {
-            // event.preventDefault();
             altDown = true;
         }
     };

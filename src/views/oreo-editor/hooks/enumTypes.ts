@@ -222,11 +222,12 @@ export interface OreoEvent {
     pointerEventState: PointerEventState;
     getClientBounds: (client?: boolean) => BoundsInfo;
     getRectClientBounds: (client?: boolean) => BoundsInfo;
-    onMouseMode: (name: string) => void;
+    onMouseMode: (name: 'boxSelect' | 'draRact' | 'text' | 'hand' | 'image') => void;
     getBoundsInfo: (callback?: (_: VirtualDom) => void) => BoundsInfo;
     cancelSelect: () => void;
     cancelActived: () => void;
     deleteVirtualGroup: () => void;
+    findUids(id: number): VirtualDom[];
 }
 
 export interface MouseMode {

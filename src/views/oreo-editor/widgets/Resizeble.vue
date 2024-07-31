@@ -1,14 +1,5 @@
 <template>
     <template v-if="props.data.visible">
-        <!-- <textarea
-                v-if="props.data.input"
-                class="textarea"
-                v-model="_label"
-                @blur="onBlur"
-                @input="onInput"
-                @keydown.enter="onEnter"
-                autofocus="true"
-            ></textarea> -->
         <DragResizeBle
             :active="_active"
             :w="_width"
@@ -29,18 +20,20 @@
             :class="classNames"
             :uid="props.data.id"
             :scaleRatio="$props.scale"
+            :snap="snap"
             @contextmenu.prevent="onMouser"
         >
-            <div
-                v-if="props.data.label"
-                class="text dr_text"
-                contenteditable="true"
-                @input="onInput"
-                @blur="onBlur"
-                @keydown.enter="onEnter"
-            >
-                {{ props.data.label }}
+            <div v-if="props.data.label && !props.data.input" class="text">
+                <p v-html="textColumn" class="p"></p>
             </div>
+            <textarea
+                v-if="props.data.input"
+                class="textarea"
+                v-model="_label"
+                @blur="onBlur"
+                @input="onInput"
+                @keydown.enter="onEnter"
+            ></textarea>
             <a-image
                 v-if="props.data.url"
                 :width="props.data.styles.width"
@@ -128,13 +121,18 @@ const _label = computed({
 //     if (props.data.virtualGroup) return false;
 //     return !!props.data.groupId && !!props.data.type;
 // });
+const snap = computed(() => {
+    if (props.data.groupId) {
+        return false;
+    }
+    return true;
+});
 
 const disableDrag = computed(() => {
     // 禁用宽高调整
     if (props.disable || props.data.input || props.data.locked || props.data.groupId) {
         return false;
     }
-
     return true;
 });
 const disableResize = computed(() => {
@@ -268,11 +266,20 @@ const styles = computed(() => {
 });
 const classNames = computed(() => {
     return [
-        'vdr',
         props.data.selected ? 'selected' : '',
         props.data.virtualGroup ? 'virtualGroup' : '',
         props.data.type === 0 ? 'group' : '',
+        props.data.input ? 'input' : '',
     ];
+});
+
+const textColumn = computed(() => {
+    // const textArray = (props.data.label || '').split('\n');
+    // const originalString = 'apple, orange, banana, apple';
+    const html = (props.data.label || '').replace(/\n/g, '<br>');
+    // html = html.replace(/\u0020/g, '\u3000');
+    // console.log(props.data.label);
+    return html;
 });
 
 // 右键
