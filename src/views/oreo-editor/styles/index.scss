@@ -13,7 +13,7 @@
     font-style: normal;
 }
 
-.editor_wrap {
+.editor-wrap {
     height: 100vh;
     overflow: hidden;
     user-select: none;
@@ -143,7 +143,7 @@
         position: relative;
         height: 100vh;
         overflow: auto;
-        padding: 20px 20px;
+        padding: 20px;
         // background: #999;
         .boxSelectHelper {
             position: absolute;
@@ -170,12 +170,9 @@
                 }
             }
         }
-        .work_content {
-            width: 1200px;
+        .work-content {
             position: relative;
             margin: 2000px;
-            height: 1080px;
-            background: #ffffff;
             pointer-events: none;
             transform-origin: top left;
             transition: all 0.3s;
@@ -250,9 +247,6 @@
                 left: 0;
                 top: 0;
                 z-index: 2;
-            }
-            .text {
-
             }
             .mdi {
                 z-index: -1;
@@ -361,8 +355,19 @@
             }
         }
         .tag_mini {
-            height: 22px; padding: 0 10px; display: block;
+            height: 22px; width: 22px; padding: 0; display: block;
             cursor: pointer;
+            position: relative;
+            &::after {
+                display: block;
+                content: '';
+                width: 100%;
+                height: 100%;
+                border: 1px #efefef solid;
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
         }
     }
 
@@ -392,5 +397,27 @@
         left: 0;
         top: 0;
 
+    }
+}
+.icon-wrap {
+    height: 60vh;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    .icon-item {
+        width: 80px;
+        text-align: center;
+        margin: 8px;
+        cursor: pointer;
+
+        .label {
+            width: 80px;
+            height: 36px;
+            overflow: hidden;
+            font-size: 12px;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
     }
 }

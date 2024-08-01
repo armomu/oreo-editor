@@ -121,6 +121,7 @@ const _label = computed({
 //     if (props.data.virtualGroup) return false;
 //     return !!props.data.groupId && !!props.data.type;
 // });
+
 const snap = computed(() => {
     if (props.data.groupId) {
         return false;
@@ -141,7 +142,7 @@ const disableResize = computed(() => {
         props.disable ||
         props.data.groupId ||
         props.data.type === VirtualDomType.Group ||
-        props.data.virtualGroup
+        props.data.type === VirtualDomType.VirtualGroup
     ) {
         return false;
     }
@@ -211,7 +212,11 @@ const onEnter = (e: Event) => {
 
 const styles = computed(() => {
     let background = 'none';
-    if (props.data.styles.fill) {
+    if (
+        props.data.styles.fill &&
+        props.data.type !== VirtualDomType.Group &&
+        props.data.type !== VirtualDomType.VirtualGroup
+    ) {
         background = props.data.styles.background;
     }
     let border = 'none';
@@ -246,13 +251,6 @@ const styles = computed(() => {
         }
         // console.log(fontStyle, 'fontStyle');
     }
-    // const div: any = {};
-    // if (isDiv.value) {
-    //     div.width = props.data.styles.width + 'px';
-    //     div.height = props.data.styles.height + 'px';
-    //     div.transform = `translate(${props.data.styles.left}px, ${props.data.styles.top}px)`;
-    // }
-
     return {
         borderRadius: `${props.data.styles.radius}px`,
         background,
@@ -264,11 +262,12 @@ const styles = computed(() => {
         ...fontStyle,
     };
 });
+
 const classNames = computed(() => {
     return [
         props.data.selected ? 'selected' : '',
-        props.data.virtualGroup ? 'virtualGroup' : '',
-        props.data.type === 0 ? 'group' : '',
+        props.data.type === VirtualDomType.Group ? 'group' : '',
+        props.data.type === VirtualDomType.VirtualGroup ? 'virtualGroup' : '',
         props.data.input ? 'input' : '',
     ];
 });

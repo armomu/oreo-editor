@@ -5,6 +5,9 @@ import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import '@mdi/font/css/materialdesignicons.css';
 
+import _arcoVue from '@arco-design/web-vue';
+import '@arco-design/web-vue/dist/arco.css';
+
 export const vuetify = createVuetify({
     components,
     directives,
@@ -23,4 +26,5 @@ export const vuetify = createVuetify({
         sets: {},
     },
 });
-// vuetify.theme.themes.value.light.colors.primary = '#E53935';
+
+export const arcoVue = _arcoVue;

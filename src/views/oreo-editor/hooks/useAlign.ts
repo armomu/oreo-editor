@@ -1,12 +1,15 @@
 import type { Ref } from 'vue';
-import type { VirtualDom } from './enumTypes';
+import { VirtualDomType, type VirtualDom } from './enumTypes';
 
 // Align Hooks
 export const useAlign = (appDom: Ref<VirtualDom[]>) => {
     function getSelectList(includeVG = true): VirtualDom[] {
         const list: VirtualDom[] = [];
         for (let i = 0; i < appDom.value.length; i++) {
-            if (appDom.value[i].selected || (appDom.value[i].virtualGroup && includeVG)) {
+            if (
+                appDom.value[i].selected ||
+                (appDom.value[i].type === VirtualDomType.VirtualGroup && includeVG)
+            ) {
                 list.push(appDom.value[i]);
             }
         }
@@ -24,7 +27,7 @@ export const useAlign = (appDom: Ref<VirtualDom[]>) => {
         const list = getSelectList();
         const maxBottom = Math.max(...list.map((vd) => vd.styles.top + vd.styles.height));
         for (let i = 0; i < list.length; i++) {
-            if (!list[i].virtualGroup) {
+            if (list[i].type !== VirtualDomType.VirtualGroup) {
                 list[i].styles.top = maxBottom - list[i].styles.height;
             }
         }
@@ -34,7 +37,7 @@ export const useAlign = (appDom: Ref<VirtualDom[]>) => {
         const minLeft = Math.min(...list.map((vd) => vd.styles.left));
         console.log(minLeft, 'left');
         for (let i = 0; i < list.length; i++) {
-            if (!list[i].virtualGroup) {
+            if (list[i].type !== VirtualDomType.VirtualGroup) {
                 list[i].styles.left = minLeft;
             }
         }
@@ -44,7 +47,7 @@ export const useAlign = (appDom: Ref<VirtualDom[]>) => {
         const maxRight = Math.max(...list.map((vd) => vd.styles.left + vd.styles.width));
 
         for (let i = 0; i < list.length; i++) {
-            if (!list[i].virtualGroup) {
+            if (list[i].type !== VirtualDomType.VirtualGroup) {
                 list[i].styles.left = maxRight - list[i].styles.width;
             }
         }

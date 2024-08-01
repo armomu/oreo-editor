@@ -9,6 +9,7 @@ export enum VirtualDomType {
     Image,
     Video,
     Icon,
+    VirtualGroup = 999,
 }
 export const beaseDomStyle: ElementStyles = {
     width: 200,
@@ -34,6 +35,7 @@ export const beaseDomStyle: ElementStyles = {
     shadowSpread: 0,
     shadowColor: 'rgba(0, 0, 0, 0.2)',
 };
+
 export const beaseDom: VirtualDom[] = [
     {
         id: 1,
@@ -128,21 +130,33 @@ export const virtualGroup: VirtualDom = {
     id: 0,
     name: 'virtualGroup',
     groupId: 0,
-    virtualGroup: true, // 虚拟组 如果是虚拟组
     icon: 'mdi-group', // 统一用Vuetify mdi-xxxx这套
-    type: 0, // 组合
+    type: VirtualDomType.VirtualGroup,
     active: true,
     visible: true,
     selected: false,
     locked: false,
     disabled: false,
-    styles: { ...beaseDomStyle, fill: false },
+    styles: { ...beaseDomStyle, background: '#ffffff', width: 1200, height: 1080 },
+};
+
+export const pageDom: VirtualDom = {
+    id: 0,
+    name: 'page',
+    groupId: 0,
+    icon: 'mdi-card-outline', // 统一用Vuetify mdi-xxxx这套
+    type: VirtualDomType.Rect, // 组合
+    active: true,
+    visible: true,
+    selected: false,
+    locked: false,
+    disabled: false,
+    styles: { ...beaseDomStyle, width: 1200, height: 1080, background: '#ffffff' },
 };
 
 export interface VirtualDom {
     id: number;
     groupId: number; // 所属组合ID
-    virtualGroup?: boolean; // 虚拟组 如果是虚拟组
     name: string;
     icon: string; // 统一用Vuetify mdi-xxxx这套
     label?: string; // 展示文本 或者title用
@@ -217,6 +231,8 @@ export interface OreoEvent {
     appDom: Ref<VirtualDom[]>;
     curDom: Ref<VirtualDom | undefined>;
     scale: Ref<number>;
+    pagesDom: Ref<VirtualDom[]>;
+    curPageDom: Ref<VirtualDom>;
     mouseMode: MouseMode;
     selectedList: Ref<VirtualDom[]>;
     pointerEventState: PointerEventState;

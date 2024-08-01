@@ -1,17 +1,18 @@
-import { ref, type Ref } from 'vue';
+import { computed, reactive } from 'vue';
 
 import materialIcons from './icon';
 import { cloneDeep } from 'lodash';
 import { VirtualDomType, beaseDom, type OreoEvent } from './enumTypes';
 
 export const useIcon = (oreoEvent: OreoEvent) => {
-    const iconState = ref({
+    const iconState = reactive({
         dialogVisible: false,
         list: materialIcons,
+        keyword: '',
     });
 
     const onShowIconDialog = () => {
-        const vg = oreoEvent.appDom.value.find((item) => item.virtualGroup);
+        const vg = oreoEvent.appDom.value.find((item) => item.type === VirtualDomType.VirtualGroup);
         // 取消选中
         for (let i = 0; i < oreoEvent.appDom.value.length; i++) {
             oreoEvent.appDom.value[i].selected = false;
@@ -22,7 +23,7 @@ export const useIcon = (oreoEvent: OreoEvent) => {
         }
         // 删除虚拟组合
         vg && oreoEvent.appDom.value.splice(oreoEvent.appDom.value.indexOf(vg), 1);
-        iconState.value.dialogVisible = true;
+        iconState.dialogVisible = true;
     };
 
     const onAddIcon = (icon: string) => {
@@ -54,12 +55,26 @@ export const useIcon = (oreoEvent: OreoEvent) => {
         oreoEvent.curDom.value = iconDom;
         oreoEvent.appDom.value.push(iconDom);
 
-        iconState.value.dialogVisible = false;
+        iconState.dialogVisible = false;
     };
+
+    const iconFilterList = computed(() => {
+        if (iconState.keyword) {
+            const list: string[] = [];
+            for (let i = 0; i < materialIcons.length; i++) {
+                if (materialIcons[i].indexOf(iconState.keyword) !== -1) {
+                    list.push(materialIcons[i]);
+                }
+            }
+            return list;
+        }
+        return [...iconState.list];
+    });
 
     return {
         iconState,
         onShowIconDialog,
         onAddIcon,
+        iconFilterList,
     };
 };

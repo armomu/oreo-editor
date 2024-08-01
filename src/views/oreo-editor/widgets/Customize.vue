@@ -3,7 +3,6 @@
 <template>
     <div class="customizes" @contextmenu.prevent="() => {}">
         <a-collapse
-            v-if="props.data"
             :default-active-key="['1', '2', '3', '4']"
             :bordered="false"
             :show-expand-icon="false"
@@ -67,36 +66,36 @@
                 <a-divider class="my-2 mb-3"></a-divider>
                 <a-row :gutter="8">
                     <a-col :span="12">
-                        <a-input-number v-model="props.data.styles.left" size="mini"
+                        <a-input-number v-model="styleData.styles.left" size="mini"
                             ><template #prepend>X</template></a-input-number
                         >
                     </a-col>
                     <a-col :span="12">
-                        <a-input-number v-model="props.data.styles.top" size="mini"
+                        <a-input-number v-model="styleData.styles.top" size="mini"
                             ><template #prepend>Y</template></a-input-number
                         >
                     </a-col>
                     <a-col :span="12" class="mt-2">
-                        <a-input-number v-model="props.data.styles.width" size="mini"
+                        <a-input-number v-model="styleData.styles.width" size="mini"
                             ><template #prepend>W</template></a-input-number
                         >
                     </a-col>
                     <a-col :span="12" class="mt-2">
-                        <a-input-number v-model="props.data.styles.height" size="mini"
+                        <a-input-number v-model="styleData.styles.height" size="mini"
                             ><template #prepend>H</template></a-input-number
                         >
                     </a-col>
                     <div class="d-flex mt-3" style="height: 24px">
                         <v-btn variant="text" disabled icon="mdi-scan-helper" size="x-small" />
                         <a-slider
-                            v-model="props.data.styles.radius"
+                            v-model="styleData.styles.radius"
                             style="width: 98px"
                             size="mini"
                             class="mx-2"
                         />
                         <a-input-number
                             style="width: 72px"
-                            v-model="props.data.styles.radius"
+                            v-model="styleData.styles.radius"
                             size="mini"
                             class="ml-1"
                         />
@@ -105,14 +104,14 @@
                         <v-btn variant="text" disabled icon="mdi-restore" size="x-small" />
                         <a-slider
                             disabled
-                            v-model="props.data.styles.rotate"
+                            v-model="styleData.styles.rotate"
                             style="width: 98px"
                             class="mx-2"
                         />
                         <a-input-number
                             disabled
                             style="width: 72px"
-                            v-model="props.data.styles.rotate"
+                            v-model="styleData.styles.rotate"
                             size="mini"
                             class="ml-1"
                         />
@@ -120,7 +119,7 @@
                     <div class="d-flex mt-3" style="height: 24px">
                         <v-btn variant="text" disabled icon="mdi-eye-outline" size="x-small" />
                         <a-slider
-                            v-model="props.data.styles.opacity"
+                            v-model="styleData.styles.opacity"
                             :max="1"
                             :min="0.0"
                             :step="0.01"
@@ -129,7 +128,7 @@
                         />
                         <a-input-number
                             style="width: 72px"
-                            v-model="props.data.styles.opacity"
+                            v-model="styleData.styles.opacity"
                             size="mini"
                             class="ml-1"
                         />
@@ -141,27 +140,27 @@
             <a-collapse-item v-if="showExterior" header="Exterior" key="2">
                 <a-row :gutter="8">
                     <a-col :span="4" class="pt-1">
-                        <a-checkbox v-model="props.data.styles.fill"
+                        <a-checkbox v-model="styleData.styles.fill"
                     /></a-col>
                     <a-col :span="3">
-                        <a-color-picker showPreset v-model="props.data.styles.background">
-                            <a-tag :color="props.data.styles.background" class="tag_mini"> </a-tag>
+                        <a-color-picker showPreset v-model="styleData.styles.background">
+                            <a-tag :color="styleData.styles.background" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16">Fill</a-col>
                     <a-col :span="4" class="mt-2 pt-1">
-                        <a-checkbox v-model="props.data.styles.border"
+                        <a-checkbox v-model="styleData.styles.border"
                     /></a-col>
                     <a-col :span="3" class="mt-2">
-                        <a-color-picker showPreset v-model="props.data.styles.borderColor">
-                            <a-tag :color="props.data.styles.borderColor" class="tag_mini"> </a-tag>
+                        <a-color-picker showPreset v-model="styleData.styles.borderColor">
+                            <a-tag :color="styleData.styles.borderColor" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16" class="mt-2">Border</a-col>
                     <a-col :span="4" class="mt-2"> </a-col>
                     <a-col :span="8" class="mt-2">
                         <a-select
-                            v-model="props.data.styles.borderWidth"
+                            v-model="styleData.styles.borderWidth"
                             style="flex: 1"
                             size="mini"
                         >
@@ -172,7 +171,7 @@
                     </a-col>
                     <a-col :span="12" class="mt-2">
                         <a-select
-                            v-model="props.data.styles.borderStyle"
+                            v-model="styleData.styles.borderStyle"
                             style="flex: 1"
                             size="mini"
                         >
@@ -182,44 +181,44 @@
                     </a-col>
 
                     <a-col :span="4" class="mt-3 pt-1">
-                        <a-checkbox v-model="props.data.styles.shadow"
+                        <a-checkbox v-model="styleData.styles.shadow"
                     /></a-col>
                     <a-col :span="3" class="mt-3">
-                        <a-color-picker showPreset v-model="props.data.styles.shadowColor">
-                            <a-tag :color="props.data.styles.shadowColor" class="tag_mini"> </a-tag>
+                        <a-color-picker showPreset v-model="styleData.styles.shadowColor">
+                            <a-tag :color="styleData.styles.shadowColor" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16" class="mt-3">Shadow</a-col>
                 </a-row>
-                <a-row v-if="props.data.styles.shadow" class="shadow_styles_input mb-2" :gutter="8">
+                <a-row v-if="styleData.styles.shadow" class="shadow_styles_input mb-2" :gutter="8">
                     <!-- <a-col :span="4" class="mt-2"> </a-col> -->
                     <a-col :span="6" class="mt-2">
-                        <a-input-number v-model="props.data.styles.shadowX" size="mini" />
+                        <a-input-number v-model="styleData.styles.shadowX" size="mini" />
                     </a-col>
                     <a-col :span="6" class="mt-2">
-                        <a-input-number v-model="props.data.styles.shadowY" size="mini" />
+                        <a-input-number v-model="styleData.styles.shadowY" size="mini" />
                     </a-col>
                     <a-col :span="6" class="mt-2">
-                        <a-input-number v-model="props.data.styles.shadowBlur" size="mini" />
+                        <a-input-number v-model="styleData.styles.shadowBlur" size="mini" />
                     </a-col>
                     <a-col :span="6" class="mt-2">
-                        <a-input-number v-model="props.data.styles.shadowSpread" size="mini" />
+                        <a-input-number v-model="styleData.styles.shadowSpread" size="mini" />
                     </a-col>
                 </a-row>
             </a-collapse-item>
             <!-- 填充样式结束 -->
 
             <!-- 文本样式开始 -->
-            <a-collapse-item v-if="props.data.fontStyle && showText" header="Text" key="3">
+            <a-collapse-item v-if="styleData.fontStyle && showText" header="Text" key="3">
                 <a-row :gutter="8">
                     <a-col :span="3">
-                        <a-color-picker showPreset v-model="props.data.fontStyle.color">
-                            <a-tag :color="props.data.fontStyle.color" class="tag_mini"> </a-tag>
+                        <a-color-picker showPreset v-model="styleData.fontStyle.color">
+                            <a-tag :color="styleData.fontStyle.color" class="tag_mini"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="8">
                         <a-select
-                            v-model="props.data.fontStyle.fontSize"
+                            v-model="styleData.fontStyle.fontSize"
                             style="flex: 1"
                             size="small"
                         >
@@ -230,7 +229,7 @@
                     </a-col>
                     <a-col :span="13">
                         <a-select
-                            v-model="props.data.fontStyle.fontFamily"
+                            v-model="styleData.fontStyle.fontFamily"
                             size="small"
                             style="flex: 1"
                         >
@@ -241,7 +240,7 @@
                     </a-col>
                     <a-col :span="12" class="mt-3">
                         <a-input-number
-                            v-model="props.data.fontStyle.lineHeight"
+                            v-model="styleData.fontStyle.lineHeight"
                             size="small"
                             style="width: 100%"
                             ><template #prepend
@@ -271,7 +270,7 @@
                         <a-radio-group
                             type="button"
                             size="small"
-                            v-model="props.data.fontStyle.textAlign"
+                            v-model="styleData.fontStyle.textAlign"
                         >
                             <a-radio value="left"
                                 ><v-icon icon="mdi-format-align-left" size="x-mall"
@@ -290,25 +289,25 @@
                 </a-row>
                 <a-row :gutter="8">
                     <a-col :span="4" class="mt-3 pt-1">
-                        <a-checkbox v-model="props.data.fontStyle.shadow"
+                        <a-checkbox v-model="styleData.fontStyle.shadow"
                     /></a-col>
                     <a-col :span="3" class="mt-3">
-                        <a-color-picker showPreset v-model="props.data.fontStyle.shadowColor">
-                            <a-tag :color="props.data.fontStyle.shadowColor"> </a-tag>
+                        <a-color-picker showPreset v-model="styleData.fontStyle.shadowColor">
+                            <a-tag :color="styleData.fontStyle.shadowColor"> </a-tag>
                         </a-color-picker>
                     </a-col>
                     <a-col :span="16" class="mt-3">Shadow</a-col>
                 </a-row>
-                <a-row v-if="props.data.fontStyle.shadow" :gutter="8" class="shadow_styles_input">
+                <a-row v-if="styleData.fontStyle.shadow" :gutter="8" class="shadow_styles_input">
                     <a-col :span="4" class="mt-2"></a-col>
                     <a-col :span="6" class="mt-2">
-                        <a-input-number v-model="props.data.fontStyle.shadowX" size="mini" />
+                        <a-input-number v-model="styleData.fontStyle.shadowX" size="mini" />
                     </a-col>
                     <a-col :span="7" class="mt-2">
-                        <a-input-number v-model="props.data.fontStyle.shadowY" size="mini" />
+                        <a-input-number v-model="styleData.fontStyle.shadowY" size="mini" />
                     </a-col>
                     <a-col :span="7" class="mt-2">
-                        <a-input-number v-model="props.data.fontStyle.shadowBlur" size="mini" />
+                        <a-input-number v-model="styleData.fontStyle.shadowBlur" size="mini" />
                     </a-col>
                 </a-row>
             </a-collapse-item>
@@ -320,13 +319,14 @@
                     :width="216"
                     :height="167"
                     fit="contain"
-                    :src="props.data?.url || undefined"
+                    :src="styleData?.url || undefined"
                     @click="onImage"
+                    style="cursor: pointer"
                 />
                 <a-row :gutter="8" class="mt-3">
                     <a-col :span="6">Img Fit</a-col>
                     <a-col :span="18">
-                        <a-select v-model="props.data.styles.imgFit" size="mini" style="flex: 1">
+                        <a-select v-model="styleData.styles.imgFit" size="mini" style="flex: 1">
                             <a-option value="contain">Contain</a-option>
                             <a-option value="cover">Cover</a-option>
                             <a-option value="fill">Fill</a-option>
@@ -349,17 +349,18 @@ import type { AlignFun } from '../hooks/useAlign';
 const props = withDefaults(
     defineProps<{
         data?: VirtualDom;
+        pageData: VirtualDom;
         align: AlignFun;
     }>(),
     {}
 );
 const emit = defineEmits(['add-widget', 'image']);
-// const imageHeight = computed(() => {
-//     if (props.data) {
-//         return (props.data.styles.height / props.data.styles.width) * 216;
-//     }
-//     return 0;
-// });
+const styleData = computed(() => {
+    if (props.data) {
+        return props.data;
+    }
+    return props.pageData;
+});
 
 const showExterior = computed(() => {
     if (props.data && props.data.type === VirtualDomType.Group) return false;

@@ -66,7 +66,11 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
                     pointerDownCount = 0;
                 }, 250);
             }
-            if (pointerDownCount === 2) {
+            if (
+                pointerDownCount === 2 &&
+                oreoEvent.curDom.value &&
+                oreoEvent.curDom.value.type === VirtualDomType.Text
+            ) {
                 pointerDownCount = 0;
                 pointerDownTimer && clearTimeout(pointerDownTimer);
                 oreoEvent.curDom.value.input = true;
@@ -80,7 +84,8 @@ export const useTextInput = (oreoEvent: OreoEvent) => {
         if (
             oreoEvent.curDom.value &&
             oreoEvent.curDom.value.input &&
-            className.includes('textarea')
+            className.includes('textarea') &&
+            oreoEvent.curDom.value.type === VirtualDomType.Text
         ) {
             try {
                 // @ts-ignore

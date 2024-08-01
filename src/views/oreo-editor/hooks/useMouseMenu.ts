@@ -70,18 +70,20 @@ export const useMouseMenu = (oreoEvent: OreoEvent) => {
         oreoEvent.curDom.value.locked = !oreoEvent.curDom.value.locked;
     };
     const onMenuGroup = () => {
-        const vg = oreoEvent.appDom.value.find((item) => item.virtualGroup);
+        const vg = oreoEvent.appDom.value.find((item) => item.type === VirtualDomType.VirtualGroup);
         // 取消选中
         for (let i = 0; i < oreoEvent.appDom.value.length; i++) {
             if (vg && oreoEvent.appDom.value[i].groupId === vg.id) {
                 oreoEvent.appDom.value[i].selected = false;
             }
         }
-        oreoEvent.getBoundsInfo();
+        const res = oreoEvent.getBoundsInfo();
         if (vg) {
             vg.name = 'Group';
-            vg.virtualGroup = false;
+            vg.type = VirtualDomType.Group;
             vg.selected = true;
+            vg.styles.width = res.width;
+            vg.styles.height = res.height;
         }
     };
     const onMenuDisbandGroup = () => {

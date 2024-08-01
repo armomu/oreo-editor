@@ -1,5 +1,5 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
-import { VirtualDomType, beaseDom } from './enumTypes';
+import { VirtualDomType, beaseDom, pageDom } from './enumTypes';
 import type { VirtualDom, BoundsInfo, PointerEventState } from './enumTypes';
 
 import { useAlign } from './useAlign';
@@ -28,12 +28,10 @@ const OreoApp = () => {
     });
     // 当前视图放大的倍数
     const scale = ref(1);
-
-    // 对应 css 还没有做全局管理
-    const workAreaOffset = reactive({
-        contentMargin: 2000, //  .work_content margin: 2000px;
-        workPadding: 20, // .work-area padding: 20px 20px;
-    });
+    // 页面管理
+    const pagesDom = ref<VirtualDom[]>([]);
+    // 当前页面
+    const curPageDom = ref<VirtualDom>({ ...pageDom });
 
     // 是否禁用所有可操作的图层
     const disableDraResize = computed(() => {
@@ -190,10 +188,11 @@ const OreoApp = () => {
     };
 
     /**
-     * 获取鼠标框选的边界 绝对定位于 work_content div
+     * 获取鼠标框选的边界 绝对定位于 work-content div
      */
     const getRectClientBounds = () => {
         const { clientStartX, clientStartY, clientEndX, clientEndY } = pointerEventState;
+        //  这个2020 是 work-content 外边距 margin: 2000px; 加上 .work-area padding: 20px;
         const left = Math.floor((Math.min(clientStartX, clientEndX) - 2020) / scale.value);
         const top = Math.floor((Math.min(clientStartY, clientEndY) - 2020) / scale.value);
         const width = Math.floor(Math.abs(clientEndX - clientStartX) / scale.value);
@@ -206,7 +205,7 @@ const OreoApp = () => {
         };
     };
 
-    // 获取选择的图层边界
+    // 获取选择的图层边界 selectedList
     const getBoundsInfo = (callback?: (_: VirtualDom) => void) => {
         let minTop = Infinity;
         let minLeft = Infinity;
@@ -266,7 +265,7 @@ const OreoApp = () => {
     };
     // 所有选择、选中、虚拟组合和当前curDom的图层
     const cancelActived = () => {
-        const vg = appDom.value.find((item) => item.virtualGroup);
+        const vg = appDom.value.find((item) => item.type === VirtualDomType.VirtualGroup);
         // 取消选中
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
@@ -287,7 +286,7 @@ const OreoApp = () => {
     };
     // 删除虚拟组合
     const deleteVirtualGroup = () => {
-        const vg = appDom.value.find((item) => item.virtualGroup);
+        const vg = appDom.value.find((item) => item.type === VirtualDomType.VirtualGroup);
         for (let i = 0; i < appDom.value.length; i++) {
             appDom.value[i].selected = false;
             if (vg && appDom.value[i].groupId === vg.id) {
@@ -300,7 +299,7 @@ const OreoApp = () => {
         if (curDom.value && vg && curDom.value.id === vg.id) {
             curDom.value = undefined;
         }
-        console.log('删除了虚拟组和选中的图层======');
+        console.log(vg, '删除了虚拟组和选中的图层======');
     };
 
     // 设置当前鼠标正在做什么工作
@@ -309,6 +308,7 @@ const OreoApp = () => {
             // @ts-ignore
             mouseMode[key] = name === key;
         });
+        console.log('======================', name);
     };
 
     // 点击了可操作的图层
@@ -423,13 +423,29 @@ const OreoApp = () => {
 
     const jsonViewerVisible = ref(false);
     // 添加测试图层数据
-    // appDom.value = testJson._rawValue as any;
+    appDom.value = testJson._rawValue as any;
+
+    const curPageDomstyles = computed(() => {
+        let background = 'none';
+        if (curPageDom.value.styles.fill) {
+            background = curPageDom.value.styles.background;
+        }
+
+        return {
+            transform: `scale(${scale.value})`,
+            background,
+            width: curPageDom.value.styles.width + 'px',
+            height: curPageDom.value.styles.height + 'px',
+        };
+    });
 
     const oreoEvent = {
         appDom,
         widgets,
         curDom,
         scale,
+        pagesDom,
+        curPageDom,
         mouseMode,
         selectedList,
         pointerEventState,
@@ -464,6 +480,8 @@ const OreoApp = () => {
         disableDraResize,
         onLayerTreeNode,
         jsonViewerVisible,
+
+        curPageDomstyles,
         align,
         ...snapLineEvent,
         ...oreoEvent,

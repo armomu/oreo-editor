@@ -1,5 +1,5 @@
 <template>
-    <div class="editor_wrap">
+    <div class="editor-wrap">
         <div class="oreo-editor" id="oreoEditor">
             <div class="layers-pages" id="layers" @contextmenu.prevent="() => {}">
                 <LayerPage
@@ -30,12 +30,7 @@
                     cursorGrab: oreoApp.mouseMode.hand,
                 }"
             >
-                <Grid />
-                <div
-                    class="work_content"
-                    id="work_content"
-                    :style="{ transform: `scale(${oreoApp.scale.value})` }"
-                >
+                <div class="work-content" id="work-content" :style="oreoApp.curPageDomstyles.value">
                     <Resizeble
                         v-for="(item, key) in oreoApp.appDom.value"
                         :key="key"
@@ -86,7 +81,12 @@
                     }
                 "
             />
-            <Customize :data="oreoApp.curDom.value" :align="oreoApp.align" />
+            <Customize
+                :data="oreoApp.curDom.value"
+                :page-data="oreoApp.curPageDom.value"
+                :align="oreoApp.align"
+                @image="oreoApp.onCurImage"
+            />
         </div>
         <a-drawer
             v-model:visible="oreoApp.jsonViewerVisible.value"
@@ -102,28 +102,30 @@
                 copyable
             ></JsonViewer>
         </a-drawer>
-        <a-drawer
-            v-model:visible="oreoApp.iconState.value.dialogVisible"
-            placement="bottom"
-            height="70vh"
-            :footer="false"
-            hide-cancel
-        >
+        <a-modal width="68%" v-model:visible="oreoApp.iconState.dialogVisible" :footer="false">
             <template #title> Material design icons </template>
-            <div class="icon-wrap">
-                <v-icon
-                    v-for="item in oreoApp.iconState.value.list"
-                    :key="item"
-                    :icon="item"
-                    @click="oreoApp.onAddIcon(item)"
+            <a-space
+                direction="vertical"
+                size="large"
+                style="width: 100%; position: relative; top: -12px"
+            >
+                <a-input-search
+                    placeholder="Search icons"
+                    allow-clear
+                    v-model="oreoApp.iconState.keyword"
                 />
+            </a-space>
+            <div class="icon-wrap">
+                <div class="icon-item" v-for="item in oreoApp.iconFilterList.value" :key="item">
+                    <v-icon :icon="item" @click="oreoApp.onAddIcon(item)" :size="48" />
+                    <div class="label">{{ item.replace('mdi-', '') }}</div>
+                </div>
             </div>
-        </a-drawer>
+        </a-modal>
     </div>
 </template>
 <script lang="ts" setup>
 import './styles/index.scss';
-import Grid from './widgets/Grid.vue';
 import BasicWidget from './widgets/BasicWidget.vue';
 import Customize from './widgets/Customize.vue';
 import LayerPage from './widgets/LayerPage.vue';

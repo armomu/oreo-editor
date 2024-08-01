@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { checkVersion } from '@/plugins/pwa';
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -36,9 +35,5 @@ const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
     next();
-});
-
-router.afterEach(() => {
-    checkVersion();
 });
 export default router;
