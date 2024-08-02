@@ -1,5 +1,5 @@
 {
-    "prettier/prettier": 0,
+    "prettier/prettier": 1,
     "printWidth": 100,
     "useTabs": false,
     "tabWidth": 4,
@@ -9,7 +9,7 @@
     "quoteProps": "as-needed",
     "quotes": true,
     "jsxSingleQuote": false,
-    "trailingComma": "es5",
+    "trailingComma": "all",
     "bracketSpacing": true,
     "jsxBracketSameLine": false,
     "arrowParens": "always",
