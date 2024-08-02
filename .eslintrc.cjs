@@ -258,7 +258,7 @@ module.exports = {
         'wrap-iife': [2, 'any'],
         'yield-star-spacing': [2, 'both'],
         yoda: [2, 'never'],
-        'prefer-const': 2,
+        'prefer-const': 1,
         'object-curly-spacing': 0,
         'array-bracket-spacing': [2, 'never'],
         noEmit: 0,
